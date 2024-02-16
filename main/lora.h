@@ -1,12 +1,11 @@
-#ifndef LORA_H
-#define LORA_H
-
-#include <stdlib.h>
-
 /*
  * EByte E220-900T22D LoRa
  */
 
+#ifndef LORA_H
+#define LORA_H
+
+#include <stdlib.h>
 
 /*
  * Contains info about the lora module
@@ -22,6 +21,8 @@ typedef struct __attribute__((packed)) {
  */
 void lora_init(void);
 
+#if CONFIG_LORA_M01_CONNECTED
+
 /*
  * Get lora info
  */
@@ -31,6 +32,8 @@ void lora_get_info(lora_info_t* info);
  * Set lora address
  */
 void lora_set_address(uint16_t);
+
+#endif
 
 /*
  * Transmit data
