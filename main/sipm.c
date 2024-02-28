@@ -28,8 +28,8 @@ void sipm_init(void)
     ESP_ERROR_CHECK(i2c_param_config(0, &conf));
 
     pcnt_unit_config_t unit_config = {
-        .low_limit = INT_MIN,
-        .high_limit = INT_MAX,
+        .low_limit = 0,
+        .high_limit = SHRT_MAX,
     };
 
     pcnt_unit_handle_t unit;

@@ -215,7 +215,7 @@ void lora_set_mode(lora_mode_t mode)
     ESP_ERROR_CHECK(gpio_set_level(CONFIG_LORA_M0, (mode >> 1) & 0b1));
     ESP_ERROR_CHECK(gpio_set_level(CONFIG_LORA_M1, mode & 0b1));
     #else
-    assert(mode != LORA_MODE_TRANSMISSION);
+    assert(mode == LORA_MODE_TRANSMISSION);
     lora_state.mode = LORA_MODE_TRANSMISSION;
     #endif
 }
