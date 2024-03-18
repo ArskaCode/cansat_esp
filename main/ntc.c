@@ -7,8 +7,11 @@
 #include "driver/adc.h"
 #include "esp_adc/adc_oneshot.h"
 
+//adc2_handle
+adc_oneshot_unit_handle_t adc2_handle;
+
 // Reads the current voltage from the ntc pin
-double ntc_read(adc_oneshot_unit_handle_t* adc2_handle){
+double ntc_read(){
     double voltage;
     // Read the pin
     ESP_ERROR_CHECK(adc_oneshot_read(adc2_handle, ADC_CHANNEL_9, &voltage));
@@ -17,7 +20,7 @@ double ntc_read(adc_oneshot_unit_handle_t* adc2_handle){
 }
 
 // Initialises the ADC channels for the ntc resistor
-void ntc_init(adc_oneshot_unit_handle_t* adc2_handle){
+void ntc_init(){
     // Init the adc_oneshot stuff
     adc_oneshot_unit_init_cfg_t init_config2 = {
         .unit_id = ADC_UNIT_2,

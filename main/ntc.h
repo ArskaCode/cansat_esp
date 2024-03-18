@@ -3,9 +3,9 @@
 /*
  * Read the value from the NTC resistor.
  */
-double ntc_read(adc_oneshot_unit_handle_t* adc2_handle);
+double ntc_read(void);
 
 /*
  * Initialise the ntc stuff
  */
-void ntc_init(adc_oneshot_unit_handle_t* adc2_handle);
+void ntc_init(void);
