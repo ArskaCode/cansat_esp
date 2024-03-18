@@ -4,6 +4,7 @@
 #include "freertos/task.h"
 #include "driver/gptimer.h"
 #include "driver/adc.h"
+#include "esp_adc/adc_oneshot.h"
 #include "esp_log.h"
 #include "lora.h"
 #include "sipm.h"
@@ -50,9 +51,12 @@ static void init_timer(TaskHandle_t wake_task)
 void app_main(void)
 {
     lora_info_t lora_info;
+    adc_oneshot_unit_handle_t adc2_handle;
 
-    //NTC resistor setup, should these be in an init function?
-    ntc_init();
+    // ntc init
+    ntc_init(&adc2_handle);
+    // exsample call to ntc read
+    double ntcVoltage = ntc_read(&adc2_handle);
 
     lora_init();
     lora_get_info(&lora_info);
