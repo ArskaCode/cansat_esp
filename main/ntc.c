@@ -30,7 +30,7 @@ void ntc_init(){
 
     // Configure ADC2 capture width
     // 12 bit decimal value from 0 to 4095
-    adc2_config_width(ADC_WIDTH_BIT_12);
+    adc1_config_width(ADC_WIDTH_BIT_12);
     // Configure the ADC2 channel (ADC2_CHANNEL_9 - pin 26), and setting attenuation (ADC_ATTEN_DB_11) 
-    adc2_config_channel_atten(ADC2_CHANNEL_9, ADC_ATTEN_DB_11);
+    adc1_config_channel_atten(ADC2_CHANNEL_9, ADC_ATTEN_DB_12);
 }
