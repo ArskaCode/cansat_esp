@@ -3,9 +3,11 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gptimer.h"
+#include "driver/adc.h"
 #include "esp_log.h"
 #include "lora.h"
 #include "sipm.h"
+#include "ntc.h"
 
 
 static const char* TAG = "cansat";
@@ -48,6 +50,9 @@ static void init_timer(TaskHandle_t wake_task)
 void app_main(void)
 {
     lora_info_t lora_info;
+
+    //NTC resistor setup, should these be in an init function?
+    ntc_init();
 
     lora_init();
     lora_get_info(&lora_info);
