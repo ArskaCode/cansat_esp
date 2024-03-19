@@ -9,6 +9,7 @@
 #include "lora.h"
 #include "sipm.h"
 #include "ntc.h"
+#include "sdcard.h"
 
 
 static const char* TAG = "cansat";
@@ -52,10 +53,14 @@ void app_main(void)
 {
     lora_info_t lora_info;
 
+    // sd card init
+    sd_init();
+    sd_write("/sdcard/flight_data.txt", "Hello world!");
+
     // ntc init
     ntc_init();
     // exsample call to ntc read
-    double ntcVoltage = ntc_read();
+    int ntcVoltage = ntc_read();
 
     lora_init();
     lora_get_info(&lora_info);
