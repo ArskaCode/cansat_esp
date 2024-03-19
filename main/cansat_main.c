@@ -10,6 +10,7 @@
 #include "sipm.h"
 #include "ntc.h"
 #include "sdcard.h"
+#include "gps.h"
 
 
 static const char* TAG = "cansat";

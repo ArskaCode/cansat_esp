@@ -99,4 +99,12 @@ menu "Example Configuration"
         int "SD CS GPIO number"
         range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
         default 32
+    config GPS_TX
+        int "GPS TX GPIO number"
+        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+        default 4
+    config GPS_RX
+        int "GPS RX GPIO number"
+        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+        default 2
 endmenu
