@@ -96,9 +96,7 @@ void sd_init(void){
     // Initializing the flight data file
     ESP_LOGI(TAG, "Initializing the flight data file.");
     const char *file_data = MOUNT_POINT"/flight_data.txt";
-    char data[EXAMPLE_MAX_CHAR_SIZE]; //Todo check this
-    snprintf(data, EXAMPLE_MAX_CHAR_SIZE, "%s %s!\n", "Hello", card->cid.name);
-    ret = sd_write(file_data, data);
+    ret = sd_write(file_data, "\n");
     if (ret != ESP_OK) {
         return;
     }
