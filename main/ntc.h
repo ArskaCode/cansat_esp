@@ -3,7 +3,7 @@
 /*
  * Read the value from the NTC resistor.
  */
-double ntc_read(void);
+int ntc_read(void);
 
 /*
  * Initialise the ntc stuff

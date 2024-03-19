@@ -4,15 +4,14 @@
 #include "driver/gptimer.h"
 #include "freertos/FreeRTOS.h"
 #include "esp_log.h"
-#include "driver/adc.h"
 #include "esp_adc/adc_oneshot.h"
 
 //adc2_handle
 adc_oneshot_unit_handle_t adc2_handle;
 
 // Reads the current voltage from the ntc pin
-double ntc_read(){
-    double voltage;
+int ntc_read(){
+    int voltage;
     // Read the pin
     ESP_ERROR_CHECK(adc_oneshot_read(adc2_handle, ADC_CHANNEL_9, &voltage));
 
@@ -30,7 +29,7 @@ void ntc_init(){
 
     // Configure ADC2 capture width
     // 12 bit decimal value from 0 to 4095
-    adc1_config_width(ADC_WIDTH_BIT_12);
+    adc_config_width(ADC_WIDTH_BIT_12);
     // Configure the ADC2 channel (ADC2_CHANNEL_9 - pin 26), and setting attenuation (ADC_ATTEN_DB_11) 
-    adc1_config_channel_atten(ADC2_CHANNEL_9, ADC_ATTEN_DB_12);
+    adc1_config_channel_atten(ADC_CHANNEL_9, ADC_ATTEN_DB_12);
 }
