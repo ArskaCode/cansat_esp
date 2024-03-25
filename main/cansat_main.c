@@ -3,7 +3,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/gptimer.h"
-#include "driver/adc.h"
 #include "esp_adc/adc_oneshot.h"
 #include "esp_log.h"
 #include "lora.h"
