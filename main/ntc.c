@@ -23,7 +23,7 @@ int ntc_read(){
     ESP_ERROR_CHECK(adc_oneshot_read(adc2_handle, NTC_ADC2_CHAN, &adc_raw[1][0]));
     ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc2_cali_handle, adc_raw[1][0], &voltage[1][0]));
     ESP_LOGI(TAG, "ADC%d Channel[%d] Cali Voltage: %d mV", ADC_UNIT_2 + 1, NTC_ADC2_CHAN, voltage[1][0]);
-    return voltage[1][0];
+    return voltage[1][0]; //prolly return what the esp_error_check returns like on the sd card stuff
 }
 
 // Initialises the ADC channels for the ntc resistor
