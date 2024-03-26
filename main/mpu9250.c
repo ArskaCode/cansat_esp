@@ -45,8 +45,8 @@ int16_t mpu9250_init(void){
         .clk_source = I2C_CLK_SRC_DEFAULT, // dunno
         .i2c_port = TEST_I2C_PORT, // dunno
         .send_buf_depth = 256, // dunno either
-        .scl_io_num = CONFIG_SCL,
-        .sda_io_num = CONFIG_SDA,
+        .scl_io_num = CONFIG_I2C_SCL,
+        .sda_io_num = CONFIG_I2C_SDA,
         .slave_addr = 0x58, // dunno
     };
 
