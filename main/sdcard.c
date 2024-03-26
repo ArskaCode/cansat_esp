@@ -23,7 +23,7 @@ const sdmmc_host_t host = SDSPI_HOST_DEFAULT();
 */
 esp_err_t sd_write(const char *path, char *data){
     ESP_LOGI(TAG, "Opening file %s", path);
-    FILE *f = fopen(path, "w");
+    FILE *f = fopen(path, "a");
     if (f == NULL) {
         ESP_LOGE(TAG, "Failed to open file for writing");
         return ESP_FAIL;
