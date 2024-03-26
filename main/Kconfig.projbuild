@@ -67,7 +67,6 @@ menu "Example Configuration"
         int "GPS RX GPIO number"
         range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
         default 2
-        
     # Ext
     config NMEA_PARSER_RING_BUFFER_SIZE
         int "NMEA Parser Ring Buffer Size"
