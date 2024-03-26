@@ -1,2 +1,2 @@
-idf_component_register(SRCS "sdcard.c" "ntc.c" "cansat_main.c" "sipm.c" "lora.c"
+idf_component_register(SRCS "gps.c" "sdcard.c" "ntc.c" "cansat_main.c" "sipm.c" "lora.c" "ext/nmea_parser.c"
                        INCLUDE_DIRS ".")

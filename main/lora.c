@@ -75,7 +75,6 @@ void lora_init(void)
     ESP_ERROR_CHECK(uart_set_pin(UART_NUM_2, CONFIG_LORA_TX, CONFIG_LORA_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
     ESP_ERROR_CHECK(uart_driver_install(UART_NUM_2, uart_buffer_size, uart_buffer_size, 10, NULL, 0));
 
-    #if CONFIG_LORA_M01_CONNECTED
     // M0 & M1 pin config
     gpio_config_t io_config_mode = {
         .intr_type = GPIO_INTR_DISABLE,
@@ -85,7 +84,6 @@ void lora_init(void)
         .pull_up_en = GPIO_PULLUP_DISABLE,
     };
     ESP_ERROR_CHECK(gpio_config(&io_config_mode));
-    #endif
 
     // aux pin config
     gpio_config_t io_config_aux = {
@@ -209,13 +207,8 @@ void lora_wait_aux(void)
 
 void lora_set_mode(lora_mode_t mode)
 {
-    #if CONFIG_LORA_M01_CONNECTED
     lora_state.mode = mode;
 
     ESP_ERROR_CHECK(gpio_set_level(CONFIG_LORA_M0, (mode >> 1) & 0b1));
     ESP_ERROR_CHECK(gpio_set_level(CONFIG_LORA_M1, mode & 0b1));
-    #else
-    assert(mode == LORA_MODE_TRANSMISSION);
-    lora_state.mode = LORA_MODE_TRANSMISSION;
-    #endif
 }
