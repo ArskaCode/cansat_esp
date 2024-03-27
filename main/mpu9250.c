@@ -2,8 +2,8 @@
 #include <string.h>
 #include "mpu9250.h"
 #include "esp_log.h"
-#include "i2c_master.h"
-#include "i2c_slave.h"
+#include "driver/i2c_master.h"
+#include "driver/i2c_slave.h"
 
 static const char* TAG = "cansat_mpu";
 
@@ -18,9 +18,9 @@ int16_t mpu9250_init(void){
     // move these to main i2c controller ig
     i2c_master_bus_config_t i2c_mst_config = {
         .clk_source = I2C_CLK_SRC_DEFAULT,
-        .i2c_port = TEST_I2C_PORT,
-        .scl_io_num = I2C_MASTER_SCL_IO,
-        .sda_io_num = I2C_MASTER_SDA_IO,
+        .i2c_port = I2C_NUM_0,
+        .scl_io_num = CONFIG_I2C_SCL,
+        .sda_io_num = CONFIG_I2C_SDA,
         .glitch_ignore_cnt = 7,
         .flags.enable_internal_pullup = true,
     };
@@ -43,7 +43,7 @@ int16_t mpu9250_init(void){
     i2c_slave_config_t i2c_slv_config = {
         .addr_bit_len = I2C_ADDR_BIT_LEN_7, // dunno
         .clk_source = I2C_CLK_SRC_DEFAULT, // dunno
-        .i2c_port = TEST_I2C_PORT, // dunno
+        .i2c_port = I2C_NUM_0, // dunno
         .send_buf_depth = 256, // dunno either
         .scl_io_num = CONFIG_I2C_SCL,
         .sda_io_num = CONFIG_I2C_SDA,
@@ -63,7 +63,7 @@ int16_t mpu9250_init(void){
 }
 
 // todo
-void mpu9250_get_accel(int* accel[3]){
+void mpu9250_get_accel(int16_t accel[3]){
     uint8_t buffer[6];
     ESP_LOGI(TAG, "Reading acceleration.");
 
@@ -75,7 +75,7 @@ void mpu9250_get_accel(int* accel[3]){
 }
 
 // todo
-void mpu9250_get_gyro(int* gyro[3]){
+void mpu9250_get_gyro(int16_t gyro[3]){
     uint8_t buffer[6];
     ESP_LOGI(TAG, "Reading gyro.");
     

@@ -1,6 +1,7 @@
 #ifndef NTC_H
 #define NTC_H
 
+#include "esp_adc/adc_cali.h"
 /*
  * Read the value from the NTC resistor.
  */
