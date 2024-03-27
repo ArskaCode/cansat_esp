@@ -86,4 +86,8 @@ menu "Example Configuration"
         default 2
         help
             Priority of NMEA Parser task.
+    config BMP280_TIMEOUT
+        int "BMP280 timeout"
+        range 0 100
+        default 10
 endmenu
