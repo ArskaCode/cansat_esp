@@ -1,93 +1,248 @@
 
-menu "Example Configuration"
+menu "Cansat"
 
     orsource "$IDF_PATH/examples/common_components/env_caps/$IDF_TARGET/Kconfig.env_caps"
     
-    config LORA_TX
-        int "LoRa TX GPIO number"
-        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
-        default 17
-    config LORA_RX
-        int "LoRa RX GPIO number"
-        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
-        default 16  
-    config LORA_M0
-        int "LoRa M0 GPIO number"
-        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
-        default 4
-    config LORA_M1
-        int "LoRa M1 GPIO number"
-        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
-        default 2
-    config LORA_AUX
-        int "Lora AUX GPIO number"
-        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
-        default 13
+    menu "LoRa"
+        config LORA_TX
+            int "LoRa TX GPIO number"
+            range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+            default 17
 
-    config I2C_SDA
-        int "I2C SDA GPIO number"
-        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
-        default 21
-    config I2C_SCL
-        int "I2C SCL GPIO number"
-        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
-        default 22
+        config LORA_RX
+            int "LoRa RX GPIO number"
+            range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+            default 16  
 
-    config SIPM_O1
-        int "SIPM O1 GPIO number"
-        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
-        default 34
-    config SIPM_POT
-        int "SIPM POT GPIO number"
-        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
-        default 21
+        config LORA_M0
+            int "LoRa M0 GPIO number"
+            range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+            default 4
 
-    config SD_MOSI
-        int "SD MOSI GPIO number"
-        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
-        default 23
-    config SD_MISO
-        int "SD MISO GPIO number"
-        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
-        default 19
-    config SD_SCLK
-        int "SD SCLK GPIO number"
-        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
-        default 18
-    config SD_CS
-        int "SD CS GPIO number"
-        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
-        default 32
+        config LORA_M1
+            int "LoRa M1 GPIO number"
+            range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+            default 2
 
-    config GPS_TX
-        int "GPS TX GPIO number"
-        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
-        default 4
-    config GPS_RX
-        int "GPS RX GPIO number"
-        range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
-        default 2
-    # Ext
-    config NMEA_PARSER_RING_BUFFER_SIZE
-        int "NMEA Parser Ring Buffer Size"
-        range 0 2048
-        default 1024
-        help
-            Size of the ring buffer used for UART Rx channel.
-    config NMEA_PARSER_TASK_STACK_SIZE
-        int "NMEA Parser Task Stack Size"
-        range 0 4096
-        default 3072
-        help
-            Stack size of NMEA Parser task.
-    config NMEA_PARSER_TASK_PRIORITY
-        int "NMEA Parser Task Priority"
-        range 0 24
-        default 2
-        help
-            Priority of NMEA Parser task.
-    config BMP280_TIMEOUT
-        int "BMP280 timeout"
-        range 0 100
-        default 10
+        config LORA_AUX
+            int "Lora AUX GPIO number"
+            range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+            default 13    
+    endmenu
+
+    menu "I2C bus"
+        config I2C_SDA
+            int "I2C SDA GPIO number"
+            range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+            default 21
+
+        config I2C_SCL
+            int "I2C SCL GPIO number"
+            range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+            default 22    
+    endmenu
+
+    menu "SiPM"
+        config SIPM_O1
+            int "SIPM O1 GPIO number"
+            range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+            default 34
+
+        config SIPM_POT
+            int "SIPM POT GPIO number"
+            range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+            default 21    
+    endmenu
+
+    menu "SD card"
+        config SD_MOSI
+            int "SD MOSI GPIO number"
+            range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+            default 23
+
+        config SD_MISO
+            int "SD MISO GPIO number"
+            range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+            default 19
+
+        config SD_SCLK
+            int "SD SCLK GPIO number"
+            range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+            default 18
+
+        config SD_CS
+            int "SD CS GPIO number"
+            range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+            default 32    
+    endmenu
+
+    menu "GPS"
+        config GPS_TX
+            int "GPS TX GPIO number"
+            range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+            default 4
+
+        config GPS_RX
+            int "GPS RX GPIO number"
+            range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
+            default 2    
+
+        config NMEA_PARSER_RING_BUFFER_SIZE
+            int "NMEA Parser Ring Buffer Size"
+            range 0 2048
+            default 1024
+            help
+                Size of the ring buffer used for UART Rx channel.
+
+        config NMEA_PARSER_TASK_STACK_SIZE
+            int "NMEA Parser Task Stack Size"
+            range 0 4096
+            default 3072
+            help
+                Stack size of NMEA Parser task.
+
+        config NMEA_PARSER_TASK_PRIORITY
+            int "NMEA Parser Task Priority"
+            range 0 24
+            default 2
+            help
+                Priority of NMEA Parser task.
+        
+    endmenu
+    
+    menu "BMX280"
+        choice BMX280_EXPECT_DEVICE
+            prompt "Installed Sensor Model"
+            help
+                Set to the model of the sensor you are using (if you know it).
+            default BMX280_EXPECT_DETECT
+            config BMX280_EXPECT_DETECT
+                bool "Auto"
+            config BMX280_EXPECT_BME280
+                bool "BME280"
+            config BMX280_EXPECT_BMP280
+                bool "BMP280"
+        endchoice
+
+        choice BMX280_ADDRESS
+            prompt "I2C Slave Address"
+            help
+                Set the slave address of the sensor if you know it. The driver can
+                automatically detect it if you don't know.
+            default BMX280_ADDRESS_DETECT
+            config BMX280_ADDRESS_DETECT
+                bool "Auto"
+            config BMX280_ADDERSS_LO
+                bool "0x76 (SDO LOW)"
+            config BMX280_ADDERSS_HI
+                bool "0x77 (SDO HIGH)"
+        endchoice
+
+        config BMX280_TIMEOUT
+            int "Read/Write Timeout"
+            default 5
+            help
+                Number of ticks to wait for I2C read/write operations.
+
+        choice BMX280_DEFAULT_TEMPERATURE_OVERSAMPLING
+            prompt "Temperature Oversampling"
+            default BMX280_DEFAULT_TEMPERATURE_OVERSAMPLING_X2
+            help
+                Refer to BMP280/BME280 Datasheet for more information.
+            config BMX280_DEFAULT_TEMPERATURE_OVERSAMPLING_NONE
+                bool "None"
+            config BMX280_DEFAULT_TEMPERATURE_OVERSAMPLING_X1
+                bool "x1"
+            config BMX280_DEFAULT_TEMPERATURE_OVERSAMPLING_X2
+                bool "x2"
+            config BMX280_DEFAULT_TEMPERATURE_OVERSAMPLING_X4
+                bool "x4"
+            config BMX280_DEFAULT_TEMPERATURE_OVERSAMPLING_X8
+                bool "x8"
+            config BMX280_DEFAULT_TEMPERATURE_OVERSAMPLING_X16
+                bool "x16"
+        endchoice
+
+        choice BMX280_DEFAULT_PRESSURE_OVERSAMPLING
+            prompt "Pressure Oversampling"
+            default BMX280_DEFAULT_PRESSURE_OVERSAMPLING_X16
+            help
+                Refer to BMP280/BME280 Datasheet for more information.
+            config BMX280_DEFAULT_PRESSURE_OVERSAMPLING_NONE
+                bool "None"
+            config BMX280_DEFAULT_PRESSURE_OVERSAMPLING_X1
+                bool "x1"
+            config BMX280_DEFAULT_PRESSURE_OVERSAMPLING_X2
+                bool "x2"
+            config BMX280_DEFAULT_PRESSURE_OVERSAMPLING_X4
+                bool "x4"
+            config BMX280_DEFAULT_PRESSURE_OVERSAMPLING_X8
+                bool "x8"
+            config BMX280_DEFAULT_PRESSURE_OVERSAMPLING_X16
+                bool "x16"
+        endchoice
+
+        choice BMX280_DEFAULT_STANDBY
+            prompt "Cyclic Measurement Standby Time"
+            default BMX280_DEFAULT_STANDBY_0M5
+            help
+                Refer to BMP280/BME280 Datasheet for more information.
+            config BMX280_DEFAULT_STANDBY_0M5
+                bool "0.5ms"
+            config BMX280_DEFAULT_STANDBY_62M5
+                bool "62.5ms"
+            config BMX280_DEFAULT_STANDBY_125M
+                bool "125ms"
+            config BMX280_DEFAULT_STANDBY_250M
+                bool "250ms"
+            config BMX280_DEFAULT_STANDBY_500M
+                bool "500ms"
+            config BMX280_DEFAULT_STANDBY_1000M
+                bool "1000ms"
+            config BMX280_DEFAULT_STANDBY_10M
+                bool "BMP280: 2000ms // BME280: 10ms"
+            config BMX280_DEFAULT_STANDBY_20M
+                bool "BMP280: 4000ms // BME280: 20ms"
+        endchoice
+
+        choice BMX280_DEFAULT_IIR
+            prompt "IIR Filter Sensitivity"
+            default BMX280_DEFAULT_IIR_X16
+            help
+                Refer to BMP280/BME280 Datasheet for more information.
+            config BMX280_DEFAULT_IIR_NONE
+                bool "Filter Off"
+            config BMX280_DEFAULT_IIR_X2
+                bool "x2"
+            config BMX280_DEFAULT_IIR_X4
+                bool "x4"
+            config BMX280_DEFAULT_IIR_X8
+                bool "x8"
+            config BMX280_DEFAULT_IIR_X16
+                bool "x16"
+        endchoice
+
+        menu "BME280 Specific Options"
+            depends on !(BMX280_EXPECT_BMP280)
+
+            choice BMX280_DEFAULT_HUMIDITY_OVERSAMPLING
+                prompt "Humidity Oversampling"
+                default BMX280_DEFAULT_HUMIDITY_OVERSAMPLING_X1
+                help
+                    Refer to BME280 Datasheet for more information.
+                config BMX280_DEFAULT_HUMIDITY_OVERSAMPLING_NONE
+                    bool "None"
+                config BMX280_DEFAULT_HUMIDITY_OVERSAMPLING_X1
+                    bool "x1"
+                config BMX280_DEFAULT_HUMIDITY_OVERSAMPLING_X2
+                    bool "x2"
+                config BMX280_DEFAULT_HUMIDITY_OVERSAMPLING_X4
+                    bool "x4"
+                config BMX280_DEFAULT_HUMIDITY_OVERSAMPLING_X8
+                    bool "x8"
+                config BMX280_DEFAULT_HUMIDITY_OVERSAMPLING_X16
+                    bool "x16"
+            endchoice
+        endmenu
+    endmenu
 endmenu

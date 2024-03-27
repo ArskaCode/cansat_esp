@@ -10,6 +10,7 @@
 #include "ntc.h"
 #include "sdcard.h"
 #include "gps.h"
+#include "ext/bmx280.h"
 
 
 static const char* TAG = "cansat";
@@ -51,6 +52,33 @@ static void init_timer(TaskHandle_t wake_task)
 
 void app_main(void)
 {
+    i2c_master_bus_config_t i2c_mst_config = {
+        .clk_source = I2C_CLK_SRC_DEFAULT,
+        .i2c_port = I2C_NUM_1,
+        .scl_io_num = CONFIG_I2C_SCL,
+        .sda_io_num = CONFIG_I2C_SDA,
+        .glitch_ignore_cnt = 7,
+        .flags.enable_internal_pullup = true,
+    };
+
+    i2c_master_bus_handle_t bus_handle;
+    ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &bus_handle));
+
+    float temp, pressure, humidity;
+
+    bmx280_t *bmx = bmx280_create(bus_handle);
+    bmx280_init(bmx);
+    bmx280_configure(bmx, &BMX280_DEFAULT_CONFIG);
+    bmx280_setMode(bmx, BMX280_MODE_CYCLE);
+    //bmx280_setMode(bmx, BMX280_MODE_CYCLE);
+    while (1) {
+        bmx280_readoutFloat(bmx, &temp, &pressure, &humidity);
+
+        ESP_LOGI(TAG, "T = %f , P = %f , Rh = %f, idk = %d", temp, pressure, humidity, bmx280_isSampling(bmx));
+        vTaskDelay(pdMS_TO_TICKS(500));
+    }
+    
+    return;
     lora_info_t lora_info;
 
     // sd card init
