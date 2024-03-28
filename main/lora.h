@@ -32,6 +32,11 @@ void lora_get_info(lora_info_t* info);
 void lora_set_address(uint16_t);
 
 /*
+ * Set lora channel
+ */
+void lora_set_channel(uint8_t);
+
+/*
  * Transmit data
  */
 void lora_transmit(const void*, size_t);

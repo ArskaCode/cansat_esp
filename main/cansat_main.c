@@ -52,6 +52,25 @@ static void init_timer(TaskHandle_t wake_task)
 
 void app_main(void)
 {
+    lora_info_t lora_info;
+    lora_init();
+    lora_get_info(&lora_info);
+    ESP_LOGI(TAG, "Lora model_number=%d, version=%d, features=%d", lora_info.model, lora_info.version, lora_info.features);
+    lora_set_address(0x1111);
+    lora_set_channel(0x17);
+
+    char msg[] = "hello";
+
+    char msg[128];
+
+    while (1)
+    {
+        ESP_LOGI(TAG, "Sent hello");
+        lora_transmit(msg, sizeof(msg));
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+
+    return;
     i2c_master_bus_config_t i2c_mst_config = {
         .clk_source = I2C_CLK_SRC_DEFAULT,
         .i2c_port = I2C_NUM_1,
@@ -79,7 +98,6 @@ void app_main(void)
     }
     
     return;
-    lora_info_t lora_info;
 
     // sd card init
     sd_init();

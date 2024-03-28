@@ -35,7 +35,7 @@ typedef enum {
 } lora_reg_t;
 
 
-static const char* TAG = "cansat_LoRa";
+static const char* TAG = "LoRa";
 
 
 static struct {
@@ -43,6 +43,8 @@ static struct {
 } lora_state;
 
 
+static void lora_read_bytes(void*, size_t);
+static void lora_write_bytes(const void*, size_t);
 static void lora_wait_aux(void);
 static void lora_set_mode(lora_mode_t);
 
@@ -80,11 +82,12 @@ void lora_init(void)
         .intr_type = GPIO_INTR_DISABLE,
         .mode = GPIO_MODE_OUTPUT,
         .pin_bit_mask = (1ULL << CONFIG_LORA_M0) | (1ULL << CONFIG_LORA_M1),
-        .pull_down_en = GPIO_PULLDOWN_DISABLE,
+        .pull_down_en = GPIO_PULLDOWN_ENABLE,
         .pull_up_en = GPIO_PULLUP_DISABLE,
     };
     ESP_ERROR_CHECK(gpio_config(&io_config_mode));
 
+/*
     // aux pin config
     gpio_config_t io_config_aux = {
         // disabled here because setting this to posedge would enable interrupts immediately
@@ -98,7 +101,7 @@ void lora_init(void)
     ESP_ERROR_CHECK(gpio_set_intr_type(CONFIG_LORA_AUX, GPIO_INTR_POSEDGE));
     ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_IRAM));
     ESP_ERROR_CHECK(gpio_isr_handler_add(CONFIG_LORA_AUX, gpio_aux_isr, NULL));
-    
+ */   
     lora_wait_aux();
 
     lora_state.mode = LORA_MODE_TRANSMISSION;
@@ -120,8 +123,8 @@ void lora_get_info(lora_info_t* info)
     uint8_t command[3] = { 0xC1, LORA_REG_PID, 3 };
     uint8_t response[3+3];
 
-    ESP_ERROR_CHECK(uart_write_bytes(UART_NUM_2, command, sizeof(command)));
-    ESP_ERROR_CHECK(uart_read_bytes(UART_NUM_2, response, sizeof(response), portMAX_DELAY));
+    lora_write_bytes(command, sizeof(command));
+    lora_read_bytes(response, sizeof(response));
 
     memcpy(info, response + 3, sizeof(lora_info_t));
 }
@@ -139,8 +142,25 @@ void lora_set_address(uint16_t address)
     uint8_t command[5] = { 0xC0, LORA_REG_ADDH, 2, (uint8_t)(address >> 8), (uint8_t)address };
     uint8_t response[5];
 
-    ESP_ERROR_CHECK(uart_write_bytes(UART_NUM_2, command, sizeof(command)));
-    ESP_ERROR_CHECK(uart_read_bytes(UART_NUM_2, response, sizeof(response), portMAX_DELAY));
+    lora_write_bytes(command, sizeof(command));
+    lora_read_bytes(response, sizeof(response));
+}
+
+
+void lora_set_channel(uint8_t channel)
+{
+        // TODO: bettter error check(?), timeout
+    if (lora_state.mode != LORA_MODE_SLEEP)
+    {
+        lora_set_mode(LORA_MODE_SLEEP);
+        lora_wait_aux();
+    }
+
+    uint8_t command[4] = { 0xC0, LORA_REG_REG2, 1, channel };
+    uint8_t response[4];
+
+    lora_write_bytes(command, sizeof(command));
+    lora_read_bytes(response, sizeof(response));
 }
 
 
@@ -152,8 +172,7 @@ void lora_transmit(const void* data, size_t size)
         lora_wait_aux();
     }
 
-    // good enough error check because this can only return parameter error
-    ESP_ERROR_CHECK(uart_write_bytes(UART_NUM_2, data, size));
+    lora_write_bytes(data, size);
 }
 
 
@@ -166,12 +185,33 @@ void lora_receive(void* buf, size_t size)
         lora_wait_aux();
     }
 
-    ESP_ERROR_CHECK(uart_read_bytes(UART_NUM_2, buf, size, portMAX_DELAY));
+    lora_read_bytes(buf, size);
 }
 
 
+void lora_read_bytes(void* ptr, size_t size)
+{
+    if (uart_read_bytes(UART_NUM_2, ptr, size, portMAX_DELAY) < 0)
+    {
+        ESP_LOGE(TAG, "UART read parameter error");
+        abort();
+    }
+}
+
+void lora_write_bytes(const void* ptr, size_t size)
+{
+    if (uart_write_bytes(UART_NUM_2, ptr, size) < 0)
+    {
+        ESP_LOGE(TAG, "UART write parameter error");
+        abort();
+    }
+}
+
 void lora_wait_aux(void)
 {
+    vTaskDelay(pdMS_TO_TICKS(100));
+    return;
+
     aux_wait_task = xTaskGetCurrentTaskHandle();
 
     while (1)
@@ -208,6 +248,8 @@ void lora_wait_aux(void)
 void lora_set_mode(lora_mode_t mode)
 {
     lora_state.mode = mode;
+
+    ESP_LOGI(TAG, "changing lora mode M0=%d M1=%d", (mode >> 1) & 0b1, mode & 0b1);
 
     ESP_ERROR_CHECK(gpio_set_level(CONFIG_LORA_M0, (mode >> 1) & 0b1));
     ESP_ERROR_CHECK(gpio_set_level(CONFIG_LORA_M1, mode & 0b1));
