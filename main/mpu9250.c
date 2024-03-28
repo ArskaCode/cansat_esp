@@ -12,8 +12,8 @@ i2c_master_dev_handle_t dev_handle;
 i2c_slave_dev_handle_t slave_handle;
 
 // todo
-int16_t mpu9250_init(void){
-    int16_t gyro_cal[3];
+void mpu9250_init(int16_t *gyro_cal){
+    //int16_t gyro_cal[3];
     
     // move these to main i2c controller ig
     i2c_master_bus_config_t i2c_mst_config = {
@@ -58,8 +58,6 @@ int16_t mpu9250_init(void){
     ESP_LOGI(TAG, "Gyro calibration.");
     calibrate_gyro(gyro_cal, 5); 
     ESP_LOGI(TAG, "Gyro calibrated.");
-
-    return gyro_cal;
 }
 
 // todo

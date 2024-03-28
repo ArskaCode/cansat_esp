@@ -7,7 +7,7 @@
 /*
 * Used to init the mpu stuff
 */
-int16_t mpu9250_init(void);
+void mpu9250_init(int16_t *gyro_cal);
 
 /*
 * Used to get the acceleration values from the mpu

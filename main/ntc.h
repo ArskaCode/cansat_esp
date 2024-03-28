@@ -15,5 +15,5 @@ void ntc_init(void);
 /*
 * Used to calibrate the adc stuff
 */
-static bool NTC_adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_t atten, adc_cali_handle_t *out_handle);
+bool NTC_adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_t atten, adc_cali_handle_t *out_handle);
 #endif
