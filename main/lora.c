@@ -73,9 +73,9 @@ void lora_init(void)
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
         .rx_flow_ctrl_thresh = 122,
     };
-    ESP_ERROR_CHECK(uart_param_config(uart_num, &uart_config));
-    ESP_ERROR_CHECK(uart_set_pin(UART_NUM_2, CONFIG_LORA_TX, CONFIG_LORA_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
-    ESP_ERROR_CHECK(uart_driver_install(UART_NUM_2, uart_buffer_size, uart_buffer_size, 10, NULL, 0));
+    LORA_SEND_ERROR(TAG, uart_param_config(uart_num, &uart_config));
+    LORA_SEND_ERROR(TAG, uart_set_pin(UART_NUM_2, CONFIG_LORA_TX, CONFIG_LORA_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+    LORA_SEND_ERROR(TAG, uart_driver_install(UART_NUM_2, uart_buffer_size, uart_buffer_size, 10, NULL, 0));
 
     // M0 & M1 pin config
     gpio_config_t io_config_mode = {
@@ -85,7 +85,7 @@ void lora_init(void)
         .pull_down_en = GPIO_PULLDOWN_ENABLE,
         .pull_up_en = GPIO_PULLUP_DISABLE,
     };
-    ESP_ERROR_CHECK(gpio_config(&io_config_mode));
+    LORA_SEND_ERROR(TAG, gpio_config(&io_config_mode));
 
 /*
     // aux pin config
@@ -97,10 +97,10 @@ void lora_init(void)
         .pull_down_en = GPIO_PULLDOWN_DISABLE,
         .pull_up_en = GPIO_PULLUP_DISABLE,
     };
-    ESP_ERROR_CHECK(gpio_config(&io_config_aux));
-    ESP_ERROR_CHECK(gpio_set_intr_type(CONFIG_LORA_AUX, GPIO_INTR_POSEDGE));
-    ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_IRAM));
-    ESP_ERROR_CHECK(gpio_isr_handler_add(CONFIG_LORA_AUX, gpio_aux_isr, NULL));
+    LORA_SEND_ERROR(TAG, gpio_config(&io_config_aux));
+    LORA_SEND_ERROR(TAG, gpio_set_intr_type(CONFIG_LORA_AUX, GPIO_INTR_POSEDGE));
+    LORA_SEND_ERROR(TAG, gpio_install_isr_service(ESP_INTR_FLAG_IRAM));
+    LORA_SEND_ERROR(TAG, gpio_isr_handler_add(CONFIG_LORA_AUX, gpio_aux_isr, NULL));
  */   
     lora_wait_aux();
 
@@ -216,11 +216,11 @@ void lora_wait_aux(void)
 
     while (1)
     {
-        ESP_ERROR_CHECK(gpio_intr_enable(CONFIG_LORA_AUX));
+        LORA_SEND_ERROR(TAG, gpio_intr_enable(CONFIG_LORA_AUX));
         // 100 ms timeout if the rising edge of the AUX pin happened already
         // so this doesnt get stuck
         BaseType_t result = ulTaskNotifyTake(pdTRUE, pdMS_TO_TICKS(100));
-        ESP_ERROR_CHECK(gpio_intr_disable(CONFIG_LORA_AUX));
+        LORA_SEND_ERROR(TAG, gpio_intr_disable(CONFIG_LORA_AUX));
         // if the rising edge actually happened
         if (result == pdTRUE)
         {
@@ -251,6 +251,6 @@ void lora_set_mode(lora_mode_t mode)
 
     ESP_LOGI(TAG, "changing lora mode M0=%d M1=%d", (mode >> 1) & 0b1, mode & 0b1);
 
-    ESP_ERROR_CHECK(gpio_set_level(CONFIG_LORA_M0, (mode >> 1) & 0b1));
-    ESP_ERROR_CHECK(gpio_set_level(CONFIG_LORA_M1, mode & 0b1));
+    LORA_SEND_ERROR(TAG, gpio_set_level(CONFIG_LORA_M0, (mode >> 1) & 0b1));
+    LORA_SEND_ERROR(TAG, gpio_set_level(CONFIG_LORA_M1, mode & 0b1));
 }
