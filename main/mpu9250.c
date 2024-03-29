@@ -5,7 +5,7 @@
 #include "driver/i2c_master.h"
 #include "driver/i2c_slave.h"
 
-static const char* TAG = "cansat_mpu";
+static const char* TAG = "mpu";
 
 i2c_master_bus_handle_t bus_handle;
 i2c_master_dev_handle_t dev_handle;

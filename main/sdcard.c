@@ -10,7 +10,7 @@
 #define MOUNT_POINT "/sdcard"
 #define EXAMPLE_MAX_CHAR_SIZE    64
 
-static const char *TAG = "cansat_SD";
+static const char *TAG = "sd";
 
 // Few global variables used
 static sdmmc_card_t *card;
