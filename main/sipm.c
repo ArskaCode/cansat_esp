@@ -2,6 +2,7 @@
 
 #include "driver/i2c.h"
 #include "driver/pulse_cnt.h"
+#include "lora.h"
 
 
 typedef struct {
@@ -13,6 +14,7 @@ static const char *TAG = "sipm";
 
 static sipm_state_t sipm_state;
 
+static const char* TAG = "SiPM";
 
 void sipm_init(void)
 {
@@ -26,7 +28,7 @@ void sipm_init(void)
         .clk_flags = 0,
     };
 
-    ESP_ERROR_CHECK(i2c_param_config(0, &conf));
+    LORA_SEND_ERROR(TAG, i2c_param_config(0, &conf));
 
     pcnt_unit_config_t unit_config = {
         .low_limit = 0,
@@ -34,7 +36,7 @@ void sipm_init(void)
     };
 
     pcnt_unit_handle_t unit;
-    ESP_ERROR_CHECK(pcnt_new_unit(&unit_config, &unit));
+    LORA_SEND_ERROR(TAG, pcnt_new_unit(&unit_config, &unit));
 
     pcnt_chan_config_t chan_config = {
         .edge_gpio_num = CONFIG_SIPM_O1,
@@ -44,10 +46,10 @@ void sipm_init(void)
     };
 
     pcnt_channel_handle_t chan;
-    ESP_ERROR_CHECK(pcnt_new_channel(unit, &chan_config, &chan));
+    LORA_SEND_ERROR(TAG, pcnt_new_channel(unit, &chan_config, &chan));
 
-    ESP_ERROR_CHECK(pcnt_channel_set_edge_action(chan, PCNT_CHANNEL_EDGE_ACTION_INCREASE, PCNT_CHANNEL_EDGE_ACTION_HOLD));
-    ESP_ERROR_CHECK(pcnt_channel_set_level_action(chan, PCNT_CHANNEL_LEVEL_ACTION_KEEP, PCNT_CHANNEL_LEVEL_ACTION_KEEP));
+    LORA_SEND_ERROR(TAG, pcnt_channel_set_edge_action(chan, PCNT_CHANNEL_EDGE_ACTION_INCREASE, PCNT_CHANNEL_EDGE_ACTION_HOLD));
+    LORA_SEND_ERROR(TAG, pcnt_channel_set_level_action(chan, PCNT_CHANNEL_LEVEL_ACTION_KEEP, PCNT_CHANNEL_LEVEL_ACTION_KEEP));
 
     sipm_state.unit = unit;
     sipm_state.chan = chan;
@@ -56,11 +58,11 @@ void sipm_init(void)
 int sipm_read_count(void)
 {
     int value;
-    ESP_ERROR_CHECK(pcnt_unit_get_count(sipm_state.unit, &value));
+    LORA_SEND_ERROR(TAG, pcnt_unit_get_count(sipm_state.unit, &value));
     return value;
 }
 
 void sipm_clear_count(void)
 {
-    ESP_ERROR_CHECK(pcnt_unit_clear_count(sipm_state.unit));
+    LORA_SEND_ERROR(TAG, pcnt_unit_clear_count(sipm_state.unit));
 }

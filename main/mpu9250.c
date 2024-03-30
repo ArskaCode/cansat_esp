@@ -4,6 +4,7 @@
 #include "esp_log.h"
 #include "driver/i2c_master.h"
 #include "driver/i2c_slave.h"
+#include "lora.h"
 
 static const char* TAG = "mpu";
 
@@ -12,8 +13,8 @@ i2c_master_dev_handle_t dev_handle;
 i2c_slave_dev_handle_t slave_handle;
 
 // todo
-int16_t mpu9250_init(void){
-    int16_t gyro_cal[3];
+void mpu9250_init(int16_t *gyro_cal){
+    //int16_t gyro_cal[3];
     
     // move these to main i2c controller ig
     i2c_master_bus_config_t i2c_mst_config = {
@@ -26,7 +27,7 @@ int16_t mpu9250_init(void){
     };
 
     i2c_master_bus_handle_t bus_handle;
-    ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &bus_handle));
+    LORA_SEND_ERROR(TAG, i2c_new_master_bus(&i2c_mst_config, &bus_handle));
 
     // config
     i2c_device_config_t dev_cfg = {
@@ -36,7 +37,7 @@ int16_t mpu9250_init(void){
     };
     
     i2c_master_dev_handle_t dev_handle;
-    ESP_ERROR_CHECK(i2c_master_bus_add_device(bus_handle, &dev_cfg, &dev_handle));
+    LORA_SEND_ERROR(TAG, i2c_master_bus_add_device(bus_handle, &dev_cfg, &dev_handle));
     
     // i2c config mpu, idk prolly need another one of these
     ESP_LOGI(TAG, "Config for mpu i2c");
@@ -51,15 +52,13 @@ int16_t mpu9250_init(void){
     };
 
     i2c_slave_dev_handle_t slave_handle;
-    ESP_ERROR_CHECK(i2c_new_slave_device(&i2c_slv_config, &slave_handle));
+    LORA_SEND_ERROR(TAG, i2c_new_slave_device(&i2c_slv_config, &slave_handle));
     // init the shit idk https://github.com/ricardozago/GY91-MPU9250-BMP280/blob/master/MPU9250/MPU9250.cpp#L274
 
     // calibrates the gyro based on 5 measurements
     ESP_LOGI(TAG, "Gyro calibration.");
     calibrate_gyro(gyro_cal, 5); 
     ESP_LOGI(TAG, "Gyro calibrated.");
-
-    return gyro_cal;
 }
 
 // todo

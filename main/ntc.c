@@ -5,6 +5,7 @@
 #include "esp_adc/adc_oneshot.h"
 #include "esp_adc/adc_cali.h"
 #include "esp_adc/adc_cali_scheme.h"
+#include "lora.h"
 
 static const char* TAG = "ntc";
 
@@ -21,8 +22,8 @@ static int voltage[2][10];
 // Reads the current voltage from the ntc pin
 int ntc_read(){
     ESP_LOGI(TAG, "Reading ntc voltage");
-    ESP_ERROR_CHECK(adc_oneshot_read(adc2_handle, NTC_ADC2_CHAN, &adc_raw[1][0]));
-    ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc2_cali_handle, adc_raw[1][0], &voltage[1][0]));
+    LORA_SEND_ERROR(TAG, adc_oneshot_read(adc2_handle, NTC_ADC2_CHAN, &adc_raw[1][0]));
+    LORA_SEND_ERROR(TAG, adc_cali_raw_to_voltage(adc2_cali_handle, adc_raw[1][0], &voltage[1][0]));
     ESP_LOGI(TAG, "ADC%d Channel[%d] Cali Voltage: %d mV", ADC_UNIT_2 + 1, NTC_ADC2_CHAN, voltage[1][0]);
     return voltage[1][0]; //prolly return what the esp_error_check returns like on the sd card stuff
 }
@@ -42,7 +43,7 @@ void ntc_init(){
         .unit_id = ADC_UNIT_2,
         .ulp_mode = ADC_ULP_MODE_DISABLE,
     };
-    ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config2, &adc2_handle));
+    LORA_SEND_ERROR(TAG, adc_oneshot_new_unit(&init_config2, &adc2_handle));
 
     //-------------ADC2 Calibration Init---------------//
     ESP_LOGI(TAG, "Initializing adc2 calibration");
@@ -50,12 +51,12 @@ void ntc_init(){
 
     //-------------ADC2 Config---------------//
     ESP_LOGI(TAG, "Adc2 config");
-    ESP_ERROR_CHECK(adc_oneshot_config_channel(adc2_handle, NTC_ADC2_CHAN, &config));
+    LORA_SEND_ERROR(TAG, adc_oneshot_config_channel(adc2_handle, NTC_ADC2_CHAN, &config));
     
     //-------------ADC2 Calibratin-------------//
     ESP_LOGI(TAG, "Calibrating adc2");
     if (do_calibration2) {
-        ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc2_cali_handle, adc_raw[1][0], &voltage[1][0]));
+        LORA_SEND_ERROR(TAG, adc_cali_raw_to_voltage(adc2_cali_handle, adc_raw[1][0], &voltage[1][0]));
         ESP_LOGI(TAG, "ADC%d Channel[%d] Cali Voltage: %d mV", ADC_UNIT_2 + 1, NTC_ADC2_CHAN, voltage[1][0]); 
     }
 }

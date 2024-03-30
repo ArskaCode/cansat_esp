@@ -16,6 +16,7 @@
 #include "bmx280.h"
 #include "esp_log.h"
 #include "freertos/FreeRTOS.h"
+#include "lora.h"
 
 #include <stdlib.h>
 #include <stdint.h>
@@ -145,10 +146,7 @@ static esp_err_t bmx280_write(bmx280_t* bmx280, uint8_t addr, const uint8_t *din
     for (int i = 0; i < size; i++)
     {
         uint8_t data[2] = { addr + i, din[i] };
-        esp_err_t err = i2c_master_transmit(bmx280->dev_handle, data, 2, CONFIG_BMX280_TIMEOUT);
-        if (err != ESP_OK) {
-            return err;
-        }
+        LORA_SEND_ERROR(TAG, i2c_master_transmit(bmx280->dev_handle, data, 2, CONFIG_BMX280_TIMEOUT));
     }
 
     return ESP_OK;
