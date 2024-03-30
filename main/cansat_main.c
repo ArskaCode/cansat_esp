@@ -45,20 +45,20 @@ static void init_timer(TaskHandle_t wake_task)
         .direction = GPTIMER_COUNT_UP,
         .resolution_hz = 1 * 1000 * 1000,
     };
-    ESP_ERROR_CHECK(gptimer_new_timer(&gptimer_config, &gptimer));
+    LORA_SEND_ERROR(TAG, gptimer_new_timer(&gptimer_config, &gptimer));
 
     gptimer_alarm_config_t alarm_config = {
         .reload_count = 0,
         .alarm_count = 1 * 1000 * 1000,
         .flags.auto_reload_on_alarm = true,
     };
-    ESP_ERROR_CHECK(gptimer_set_alarm_action(gptimer, &alarm_config));
+    LORA_SEND_ERROR(TAG, gptimer_set_alarm_action(gptimer, &alarm_config));
 
     gptimer_event_callbacks_t cbs = {
         .on_alarm = timer_cb,
     };
 
-    ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &cbs, wake_task));
+    LORA_SEND_ERROR(TAG, gptimer_register_event_callbacks(gptimer, &cbs, wake_task));
 }
 
 void serialize_data(const struct data_struct *data, char *buffer, size_t buffer_size) {
@@ -73,9 +73,27 @@ void serialize_data(const struct data_struct *data, char *buffer, size_t buffer_
 
 
 void app_main(void)
-{
-    // testing
+{    // testing
     /*
+    lora_info_t lora_info;
+    lora_init();
+    lora_get_info(&lora_info);
+    ESP_LOGI(TAG, "Lora model_number=%d, version=%d, features=%d", lora_info.model, lora_info.version, lora_info.features);
+    lora_set_address(0x1111);
+    lora_set_channel(0x17);
+
+    char msg[128] = "hello";
+
+    //char msg[128];
+
+    while (1)
+    {
+        ESP_LOGI(TAG, "Sent hello");
+        lora_transmit(msg, sizeof(msg));
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+
+    return;
     i2c_master_bus_config_t i2c_mst_config = {
         .clk_source = I2C_CLK_SRC_DEFAULT,
         .i2c_port = I2C_NUM_1,
@@ -86,7 +104,7 @@ void app_main(void)
     };
 
     i2c_master_bus_handle_t bus_handle;
-    ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &bus_handle));
+    LORA_SEND_ERROR(TAG, i2c_new_master_bus(&i2c_mst_config, &bus_handle));
 
     float temp, pressure, humidity;
 

@@ -4,6 +4,7 @@
 #include "esp_log.h"
 #include "driver/i2c_master.h"
 #include "driver/i2c_slave.h"
+#include "lora.h"
 
 static const char* TAG = "cansat_mpu";
 
@@ -26,7 +27,7 @@ void mpu9250_init(int16_t *gyro_cal){
     };
 
     i2c_master_bus_handle_t bus_handle;
-    ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &bus_handle));
+    LORA_SEND_ERROR(TAG, i2c_new_master_bus(&i2c_mst_config, &bus_handle));
 
     // config
     i2c_device_config_t dev_cfg = {
@@ -36,7 +37,7 @@ void mpu9250_init(int16_t *gyro_cal){
     };
     
     i2c_master_dev_handle_t dev_handle;
-    ESP_ERROR_CHECK(i2c_master_bus_add_device(bus_handle, &dev_cfg, &dev_handle));
+    LORA_SEND_ERROR(TAG, i2c_master_bus_add_device(bus_handle, &dev_cfg, &dev_handle));
     
     // i2c config mpu, idk prolly need another one of these
     ESP_LOGI(TAG, "Config for mpu i2c");
@@ -51,7 +52,7 @@ void mpu9250_init(int16_t *gyro_cal){
     };
 
     i2c_slave_dev_handle_t slave_handle;
-    ESP_ERROR_CHECK(i2c_new_slave_device(&i2c_slv_config, &slave_handle));
+    LORA_SEND_ERROR(TAG, i2c_new_slave_device(&i2c_slv_config, &slave_handle));
     // init the shit idk https://github.com/ricardozago/GY91-MPU9250-BMP280/blob/master/MPU9250/MPU9250.cpp#L274
 
     // calibrates the gyro based on 5 measurements
