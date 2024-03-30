@@ -8,16 +8,14 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define LORA_SEND_ERROR(tag, x) do {            \
-    esp_err_t err_rc_ = (x);                    \
-    char combined[128];                         \
+#define LORA_SEND_ERROR(tag, x) ({                \
+    esp_err_t err_rc_ = (x);                      \
+    char combined[128];                           \
     snprintf(combined, sizeof(combined), "%s: %s", (tag), esp_err_to_name(err_rc_)); \
-    lora_transmit(&combined, strlen(combined)); \
-    if (err_rc_ == ESP_OK){                     \
-        true;                                   \
-    }                                           \
-    false;                                      \
-} while(0)
+    lora_transmit(&combined, strlen(combined));   \
+    bool success_ = (err_rc_ == ESP_OK);         \
+    success_;                                     \
+})
 
 #define LORA_SEND_LOG(tag, text) do {           \
     char combined[128];                         \
