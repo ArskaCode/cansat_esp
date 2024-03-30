@@ -22,15 +22,15 @@ const sdmmc_host_t host = SDSPI_HOST_DEFAULT();
 * Used to write to the sd card
 */
 esp_err_t sd_write(const char *path, char *data){
-    ESP_LOGI(TAG, "Opening file %s", path);
+    LORA_SEND_LOG(TAG, "Opening file %s", path);
     FILE *f = fopen(path, "a");
     if (f == NULL) {
-        ESP_LOGE(TAG, "Failed to open file for writing");
+        LORA_SEND_LOG(TAG, "Failed to open file for writing");
         return ESP_FAIL;
     }
     fprintf(f, data);
     fclose(f);
-    ESP_LOGI(TAG, "File written");
+    LORA_SEND_LOG(TAG, "File written");
 
     return ESP_OK;
 }
@@ -47,10 +47,10 @@ void sd_init(void){
     };
 
     // sd card init
-    ESP_LOGI(TAG, "Initializing SD card");
+    LORA_SEND_LOG(TAG, "Initializing SD card");
 
     // Spi bus init
-    ESP_LOGI(TAG, "Spi bus initialization started.");
+    LORA_SEND_LOG(TAG, "Spi bus initialization started.");
     esp_err_t ret;
 
     // Spi bus configs
@@ -64,43 +64,42 @@ void sd_init(void){
     };
     ret = spi_bus_initialize(host.slot, &bus_cfg, SDSPI_DEFAULT_DMA);
     if (ret != ESP_OK) {
-        ESP_LOGE(TAG, "Failed to initialize bus.");
+        LORA_SEND_LOG(TAG, "Failed to initialize bus.");
         return;
     }
-    ESP_LOGI(TAG, "Spi bus initialized succesfully.");
+    LORA_SEND_LOG(TAG, "Spi bus initialized succesfully.");
 
     // This initializes the slot without card detect (CD) and write protect (WP) signals.
-    ESP_LOGI(TAG, "Initilizing the sd card slot.");
+    LORA_SEND_LOG(TAG, "Initilizing the sd card slot.");
     sdspi_device_config_t slot_config = SDSPI_DEVICE_CONFIG_DEFAULT();
     slot_config.gpio_cs = CONFIG_SD_CS;
     slot_config.host_id = host.slot;
-    ESP_LOGI(TAG, "Sd card slot initlialized succesfully.");
+    LORA_SEND_LOG(TAG, "Sd card slot initlialized succesfully.");
 
     // Mounting the filesystem
-    ESP_LOGI(TAG, "Mounting filesystem");
+    LORA_SEND_LOG(TAG, "Mounting filesystem");
     ret = esp_vfs_fat_sdspi_mount(mount_point, &host, &slot_config, &mount_config, &card);
     if (ret != ESP_OK) {
         if (ret == ESP_FAIL) {
-            ESP_LOGE(TAG, "Failed to mount filesystem. ");
+            LORA_SEND_LOG(TAG, "Failed to mount filesystem. ");
         } else {
-            ESP_LOGE(TAG, "Failed to initialize the card (%s). "
-                     "Make sure SD card lines have pull-up resistors in place.", esp_err_to_name(ret));
+            LORA_SEND_LOG(TAG, "Failed to initialize the card (%s). ");
         }
         return;
     }
-    ESP_LOGI(TAG, "Filesystem mounted");
+    LORA_SEND_LOG(TAG, "Filesystem mounted");
     
     // Card has been initialized, print its properties
     sdmmc_card_print_info(stdout, card);
     
     // Initializing the flight data file
-    ESP_LOGI(TAG, "Initializing the flight data file.");
+    LORA_SEND_LOG(TAG, "Initializing the flight data file.");
     const char *file_data = MOUNT_POINT"/flight_data.txt";
     ret = sd_write(file_data, "\n");
     if (ret != ESP_OK) {
         return;
     }
-    ESP_LOGI(TAG, "Flight data file initialized.");
+    LORA_SEND_LOG(TAG, "Flight data file initialized.");
 }
 
 /*
@@ -108,12 +107,12 @@ void sd_init(void){
 */
 void sd_uninit(void){
     // Unmount partition and disable SPI peripheral
-    ESP_LOGI(TAG, "Unmounting sd card.");
+    LORA_SEND_LOG(TAG, "Unmounting sd card.");
     esp_vfs_fat_sdcard_unmount(mount_point, card);
-    ESP_LOGI(TAG, "Card unmounted");
+    LORA_SEND_LOG(TAG, "Card unmounted");
 
     // deinitialize the bus after all devices are removed
-    ESP_LOGI(TAG, "Deinitializing the spi bus.");
+    LORA_SEND_LOG(TAG, "Deinitializing the spi bus.");
     spi_bus_free(host.slot);
-    ESP_LOGI(TAG, "SPI bus deinitialized.");
+    LORA_SEND_LOG(TAG, "SPI bus deinitialized.");
 }

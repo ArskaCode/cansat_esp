@@ -188,7 +188,7 @@ static esp_err_t bmx280_probe_address(bmx280_t *bmx280, uint8_t address)
         #endif
         )
         {
-            ESP_LOGI(TAG, "Probe success: address=%hhx, id=%hhx", address, bmx280->chip_id);
+            ESP_LOGI(TAG, "Probe success: address=%hhx, id=%hhx", address, bmx280->chip_id); // replace with LORA_SEND_LOG
             return ESP_OK;
         }
         else
@@ -205,7 +205,7 @@ static esp_err_t bmx280_probe_address(bmx280_t *bmx280, uint8_t address)
 
 static esp_err_t bmx280_probe(bmx280_t *bmx280)
 {
-    ESP_LOGI("bmx280", "Probing for BMP280/BME280 sensors on I2C");
+    LORA_SEND_LOG(TAG, "Probing for BMP280/BME280 sensors on I2C");
 
     #if CONFIG_BMX280_ADDRESS_HI
     bmx280->slave = 0xEE;
@@ -219,7 +219,7 @@ static esp_err_t bmx280_probe(bmx280_t *bmx280)
     {
         if ((err = bmx280_probe_address(bmx280, 0xEC)) != ESP_OK)
         {
-            ESP_LOGE("bmx280", "Sensor not found.");
+            LORA_SEND_LOG(TAG, "Sensor not found.");
             bmx280->chip_id = 0xFF;
         }
     }
@@ -242,7 +242,7 @@ static esp_err_t bmx280_calibrate(bmx280_t *bmx280)
     //
     // Write and pray to optimizations is my new motto.
 
-    ESP_LOGI("bmx280", "Reading out calibration values...");
+    LORA_SEND_LOG(TAG, "Reading out calibration values...");
 
     esp_err_t err;
     uint8_t buf[26];
@@ -252,7 +252,7 @@ static esp_err_t bmx280_calibrate(bmx280_t *bmx280)
 
     if (err != ESP_OK) return err;
 
-    ESP_LOGI("bmx280", "Read Low Bank.");
+    LORA_SEND_LOG(TAG, "Read Low Bank.");
 
     bmx280->cmps.T1 = buf[0] | (buf[1] << 8);
     bmx280->cmps.T2 = buf[2] | (buf[3] << 8);
@@ -280,7 +280,7 @@ static esp_err_t bmx280_calibrate(bmx280_t *bmx280)
 
         if (err != ESP_OK) return err;
 
-        ESP_LOGI("bmx280", "Read High Bank.");
+        LORA_SEND_LOG(TAG, "Read High Bank.");
 
         bmx280->cmps.H2 = buf[0] | (buf[1] << 8);
         bmx280->cmps.H3 = buf[2];
@@ -326,7 +326,7 @@ esp_err_t bmx280_init(bmx280_t* bmx280)
         // Read calibration data.
         bmx280_calibrate(bmx280);
 
-        ESP_LOGI("bmx280", "Dumping calibration...");
+        LORA_SEND_LOG(TAG, "Dumping calibration...");
         ESP_LOG_BUFFER_HEX("bmx280", &bmx280->cmps, sizeof(bmx280->cmps));
     }
 
@@ -530,7 +530,7 @@ esp_err_t bmx280_readout(bmx280_t *bmx280, int32_t *temperature, uint32_t *press
 
         uint32_t uncomp_press = ((uint32_t)buffer[0] << 12) | ((uint32_t)buffer[1] << 4) | ((uint32_t)buffer[2] >> 4);
 
-        ESP_LOGI(TAG, "%ld", uncomp_press);
+        ESP_LOGI(TAG, "%ld", uncomp_press); // replace with LORA_SEND_LOG
 
         *pressure = BME280_compensate_P_int32(bmx280, uncomp_press);
     }

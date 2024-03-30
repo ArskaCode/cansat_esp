@@ -106,7 +106,7 @@ void lora_init(void)
 
     lora_state.mode = LORA_MODE_TRANSMISSION;
 
-    ESP_LOGI(TAG, "Initialized");
+    LORA_SEND_LOG(TAG, "Initialized");
 }
 
 
@@ -193,7 +193,7 @@ void lora_read_bytes(void* ptr, size_t size)
 {
     if (uart_read_bytes(UART_NUM_2, ptr, size, portMAX_DELAY) < 0)
     {
-        ESP_LOGE(TAG, "UART read parameter error");
+        LORA_SEND_LOG(TAG, "UART read parameter error");
         abort();
     }
 }
@@ -202,7 +202,7 @@ void lora_write_bytes(const void* ptr, size_t size)
 {
     if (uart_write_bytes(UART_NUM_2, ptr, size) < 0)
     {
-        ESP_LOGE(TAG, "UART write parameter error");
+        LORA_SEND_LOG(TAG, "UART write parameter error");
         abort();
     }
 }
@@ -249,7 +249,7 @@ void lora_set_mode(lora_mode_t mode)
 {
     lora_state.mode = mode;
 
-    ESP_LOGI(TAG, "changing lora mode M0=%d M1=%d", (mode >> 1) & 0b1, mode & 0b1);
+    LORA_SEND_LOG(TAG, "changing lora mode M0=%d M1=%d", (mode >> 1) & 0b1, mode & 0b1);
 
     LORA_SEND_ERROR(TAG, gpio_set_level(CONFIG_LORA_M0, (mode >> 1) & 0b1));
     LORA_SEND_ERROR(TAG, gpio_set_level(CONFIG_LORA_M1, mode & 0b1));
