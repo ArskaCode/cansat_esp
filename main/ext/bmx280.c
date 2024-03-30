@@ -312,7 +312,7 @@ void bmx280_close(bmx280_t *bmx280)
     free(bmx280);
 }
 
-esp_err_t bmx280_init(bmx280_t* bmx280)
+esp_err_t bmx280_init(bmx280_t* bmx280, bool *inits)
 {
     if (bmx280 == NULL) return ESP_ERR_INVALID_ARG;
 
@@ -328,8 +328,9 @@ esp_err_t bmx280_init(bmx280_t* bmx280)
 
         LORA_SEND_LOG(TAG, "Dumping calibration...");
         ESP_LOG_BUFFER_HEX("bmx280", &bmx280->cmps, sizeof(bmx280->cmps));
+        inits[4] &= true;
     }
-
+    inits[4] &= false;
     return error;
 }
 

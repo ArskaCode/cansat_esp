@@ -121,10 +121,10 @@ void app_main(void)
 // real main
     struct data_struct output;
     char serialized_data[256]; // Adjust the buffer size
-    bool inits[7];
+    bool inits[7] = {true};
 
     lora_info_t lora_info;
-    lora_init(); // inits list 0 index
+    lora_init(inits); // inits list 0 index
     lora_get_info(&lora_info);
 
     lora_set_address(0x1111);
@@ -136,14 +136,14 @@ void app_main(void)
     init_timer(xTaskGetCurrentTaskHandle());
 
     // sd card init
-    sd_init(); // inits list 1 index
+    sd_init(inits); // inits list 1 index
     //sd_write("/sdcard/flight_data.txt", "Hello world!");
 
     // sipm init x
-    sipm_init(); // inits list 2 index
+    sipm_init(inits); // inits list 2 index
 
     // ntc init
-    ntc_init(); // inits list 3 index
+    ntc_init(inits); // inits list 3 index
     // exsample call to ntc read
     //int ntcVoltage = ntc_read();
 
@@ -155,10 +155,10 @@ void app_main(void)
 
     // mpu9250 init
     int16_t gyro_cal[3];
-    mpu9250_init(gyro_cal); // inits list 5 index
+    mpu9250_init(gyro_cal, inits); // inits list 5 index
 
     // gps init
-    gps_init(); // inits list 6 index
+    gps_init(inits); // inits list 6 index
 
     LORA_SEND_LOG(TAG, "Starting main loop.");
     while (1)

@@ -7,6 +7,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 
 #define LORA_SEND_ERROR(tag, x) ({                \
     esp_err_t err_rc_ = (x);                      \
@@ -35,7 +36,7 @@ typedef struct __attribute__((packed)) {
 /*
  * Initialize lora stuff
  */
-void lora_init(void);
+void lora_init(bool *inits);
 
 /*
  * Get lora info

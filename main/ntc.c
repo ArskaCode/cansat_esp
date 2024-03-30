@@ -28,7 +28,7 @@ int ntc_read(){
 }
 
 // Initialises the ADC channels for the ntc resistor
-void ntc_init(){
+void ntc_init(bool *inits){
     //-------------ADC2 config---------------//
     LORA_SEND_LOG(TAG, "Configuring adc2");
     adc_oneshot_chan_cfg_t config = {
@@ -42,7 +42,7 @@ void ntc_init(){
         .unit_id = ADC_UNIT_2,
         .ulp_mode = ADC_ULP_MODE_DISABLE,
     };
-    LORA_SEND_ERROR(TAG, adc_oneshot_new_unit(&init_config2, &adc2_handle));
+    inits[3] &= LORA_SEND_ERROR(TAG, adc_oneshot_new_unit(&init_config2, &adc2_handle));
 
     //-------------ADC2 Calibration Init---------------//
     LORA_SEND_LOG(TAG, "Initializing adc2 calibration");
@@ -50,12 +50,12 @@ void ntc_init(){
 
     //-------------ADC2 Config---------------//
     LORA_SEND_LOG(TAG, "Adc2 config");
-    LORA_SEND_ERROR(TAG, adc_oneshot_config_channel(adc2_handle, NTC_ADC2_CHAN, &config));
+    inits[3] &= LORA_SEND_ERROR(TAG, adc_oneshot_config_channel(adc2_handle, NTC_ADC2_CHAN, &config));
     
     //-------------ADC2 Calibratin-------------//
     LORA_SEND_LOG(TAG, "Calibrating adc2");
     if (do_calibration2) {
-        LORA_SEND_ERROR(TAG, adc_cali_raw_to_voltage(adc2_cali_handle, adc_raw[1][0], &voltage[1][0]));
+        inits[3] &= LORA_SEND_ERROR(TAG, adc_cali_raw_to_voltage(adc2_cali_handle, adc_raw[1][0], &voltage[1][0]));
         //LORA_SEND_LOG(TAG, "ADC%d Channel[%d] Cali Voltage: %d mV", ADC_UNIT_2 + 1, NTC_ADC2_CHAN, voltage[1][0]); 
     }
 }

@@ -59,7 +59,7 @@ static void IRAM_ATTR gpio_aux_isr(void* arg)
 }
 
 
-void lora_init(void)
+void lora_init(bool *inits)
 {
     // uart config
     const uart_port_t uart_num = UART_NUM_2;
@@ -73,9 +73,9 @@ void lora_init(void)
         .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
         .rx_flow_ctrl_thresh = 122,
     };
-    LORA_SEND_ERROR(TAG, uart_param_config(uart_num, &uart_config));
-    LORA_SEND_ERROR(TAG, uart_set_pin(UART_NUM_2, CONFIG_LORA_TX, CONFIG_LORA_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
-    LORA_SEND_ERROR(TAG, uart_driver_install(UART_NUM_2, uart_buffer_size, uart_buffer_size, 10, NULL, 0));
+    inits[0] &= LORA_SEND_ERROR(TAG, uart_param_config(uart_num, &uart_config));
+    inits[0] &= LORA_SEND_ERROR(TAG, uart_set_pin(UART_NUM_2, CONFIG_LORA_TX, CONFIG_LORA_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE));
+    inits[0] &= LORA_SEND_ERROR(TAG, uart_driver_install(UART_NUM_2, uart_buffer_size, uart_buffer_size, 10, NULL, 0));
 
     // M0 & M1 pin config
     gpio_config_t io_config_mode = {
@@ -85,7 +85,7 @@ void lora_init(void)
         .pull_down_en = GPIO_PULLDOWN_ENABLE,
         .pull_up_en = GPIO_PULLUP_DISABLE,
     };
-    LORA_SEND_ERROR(TAG, gpio_config(&io_config_mode));
+    inits[0] &= LORA_SEND_ERROR(TAG, gpio_config(&io_config_mode));
 
 /*
     // aux pin config
