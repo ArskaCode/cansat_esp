@@ -14,6 +14,7 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "nmea_parser.h"
+#include "lora.h"
 
 /**
  * @brief NMEA Parser runtime buffer size

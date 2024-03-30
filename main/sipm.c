@@ -10,8 +10,6 @@ typedef struct {
     pcnt_channel_handle_t chan;
 } sipm_state_t;
 
-static const char *TAG = "sipm";
-
 static sipm_state_t sipm_state;
 
 static const char* TAG = "SiPM";

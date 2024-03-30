@@ -6,6 +6,7 @@
 #define LORA_H
 
 #include <stdlib.h>
+#include <string.h>
 
 #define LORA_SEND_ERROR(tag, x) do {            \
     esp_err_t err_rc_ = (x);                    \

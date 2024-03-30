@@ -249,7 +249,7 @@ void lora_set_mode(lora_mode_t mode)
 {
     lora_state.mode = mode;
 
-    LORA_SEND_LOG(TAG, "changing lora mode M0=%d M1=%d", (mode >> 1) & 0b1, mode & 0b1);
+    LORA_SEND_LOG(TAG, "changing lora mode");
 
     LORA_SEND_ERROR(TAG, gpio_set_level(CONFIG_LORA_M0, (mode >> 1) & 0b1));
     LORA_SEND_ERROR(TAG, gpio_set_level(CONFIG_LORA_M1, mode & 0b1));

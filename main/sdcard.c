@@ -6,6 +6,7 @@
 #include "esp_log.h"
 #include "sdmmc_cmd.h"
 #include "esp_vfs_fat.h"
+#include "lora.h"
 
 #define MOUNT_POINT "/sdcard"
 #define EXAMPLE_MAX_CHAR_SIZE    64
@@ -22,7 +23,7 @@ const sdmmc_host_t host = SDSPI_HOST_DEFAULT();
 * Used to write to the sd card
 */
 esp_err_t sd_write(const char *path, char *data){
-    LORA_SEND_LOG(TAG, "Opening file %s", path);
+    LORA_SEND_LOG(TAG, "Opening file.");
     FILE *f = fopen(path, "a");
     if (f == NULL) {
         LORA_SEND_LOG(TAG, "Failed to open file for writing");
