@@ -5,16 +5,27 @@
 #include "driver/gptimer.h"
 #include "esp_adc/adc_oneshot.h"
 #include "esp_log.h"
+#include "esp_timer.h"
+
 #include "lora.h"
 #include "sipm.h"
 #include "ntc.h"
 #include "sdcard.h"
 #include "gps.h"
 #include "ext/bmx280.h"
-
+#include "mpu9250.h"
 
 static const char* TAG = "cansat";
 
+struct data_struct {
+    int ntcOut;
+    int bmxOut;
+    int16_t gyroOut[3];
+    int16_t accelOut[3];
+    gps_data_t gps_data;
+    int sipmOut;
+    int time;
+};
 
 static bool IRAM_ATTR timer_cb(gptimer_handle_t timer, const gptimer_alarm_event_data_t *edata, void *user_ctx)
 {
@@ -49,9 +60,18 @@ static void init_timer(TaskHandle_t wake_task)
     ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &cbs, wake_task));
 }
 
+void serialize_data(const struct data_struct *data, char *buffer, size_t buffer_size) {
+    snprintf(buffer, buffer_size, "%d,%d,%d,%d,%d,%d,%d,%d,%f,%f,%f,%d,%d",
+         data->ntcOut, data->bmxOut,
+         data->gyroOut[0], data->gyroOut[1], data->gyroOut[2],
+         data->accelOut[0], data->accelOut[1], data->accelOut[2],
+         (float)data->gps_data.latitude, (float)data->gps_data.longitude, (float)data->gps_data.altitude,
+         data->sipmOut, data->time);
+}
 
 void app_main(void)
 {
+    /*
     lora_info_t lora_info;
     lora_init();
     lora_get_info(&lora_info);
@@ -97,43 +117,77 @@ void app_main(void)
         vTaskDelay(pdMS_TO_TICKS(500));
     }
     
-    return;
+    return;*/
+
+    // real main
+    struct data_struct output;
+    char serialized_data[256]; // Adjust the buffer size
+
+    // lora init
+    lora_info_t lora_info;
+    lora_init();
+    lora_get_info(&lora_info);
+    lora_set_address(0x1111);
+    
+    // timer init
+    init_timer(xTaskGetCurrentTaskHandle());
 
     // sd card init
     sd_init();
-    sd_write("/sdcard/flight_data.txt", "Hello world!");
+
+    // sipm init x
+    sipm_init();
 
     // ntc init
     ntc_init();
-    // exsample call to ntc read
-    int ntcVoltage = ntc_read();
 
-    lora_init();
-    lora_get_info(&lora_info);
+    // bmx init, missing the files
+    //bmx280_t *bmx = bmx280_create(bus_handle);
+    //bmx280_init(bmx);
+    //bmx280_configure(bmx, &BMX280_DEFAULT_CONFIG);
+    //bmx280_setMode(bmx, BMX280_MODE_CYCLE);
 
-    ESP_LOGI(TAG, "Lora model_number=%d, version=%d, features=%d", lora_info.model, lora_info.version, lora_info.features);
+    // mpu9250 init
+    int16_t gyro_cal[3];
+    mpu9250_init(gyro_cal);
 
-    lora_set_address(0x1111);
+    // gps init
+    gps_init();
 
-    const char message[5] = "ping";
-    char response[5];
-
-    init_timer(xTaskGetCurrentTaskHandle());
+    LORA_SEND_LOG(TAG, "Starting main loop.");
     while (1)
     {
-        lora_transmit(message, sizeof(message));
-        lora_receive(response, sizeof(response));
+        // read sipm
+        output.sipmOut = sipm_read_count();
 
-        if (strcmp(response, "pong") != 0)
-        {
-            ESP_LOGI(TAG, "Didn't work :(");
-        }
-        else
-        {
-            ESP_LOGI(TAG, "Working");
-        }
+        // read time
+        output.time = esp_timer_get_time();
 
+        // read gps
+        gps_get_data(&output.gps_data);
 
-        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        // read gyro
+        mpu9250_get_gyro(output.gyroOut);
+
+        output.gyroOut[0] -= gyro_cal[0];
+        output.gyroOut[1] -= gyro_cal[1];
+        output.gyroOut[2] -= gyro_cal[2];
+
+        // read accerelation
+        mpu9250_get_accel(output.accelOut);
+
+        // read NTC
+        output.ntcOut = ntc_read();
+
+        // read bmx, missing files
+        //output.bmxOut = bmx280_read();
+        output.bmxOut = 10;
+
+        serialize_data(&output, serialized_data, sizeof(serialized_data));
+
+        lora_transmit(serialized_data, sizeof(serialized_data));
+        sd_write("/sdcard/flight_data.txt", serialized_data);
+
+        vTaskDelay(pdMS_TO_TICKS(500)); // just waits for 100ms, need to make this dynamic so it waits in a way that it loops 10 times a second
     }
 }
