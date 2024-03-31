@@ -15,7 +15,7 @@
 #include "ext/bmx280.h"
 #include "mpu9250.h"
 
-static const char* TAG = "cansat";
+static const char* TAG = "Cansat: ";
 
 struct data_struct {
     uint32_t ntcOut;
@@ -181,6 +181,7 @@ void app_main(void)
     lora_get_info(&lora_info);
     lora_set_address(0x1111);
     
+    LORA_SEND_LOG(TAG, "Hello.")
     // timer init
     init_timer(xTaskGetCurrentTaskHandle());
 

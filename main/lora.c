@@ -35,7 +35,7 @@ typedef enum {
 } lora_reg_t;
 
 
-static const char* TAG = "lora";
+static const char* TAG = "Lora: ";
 
 
 static struct {

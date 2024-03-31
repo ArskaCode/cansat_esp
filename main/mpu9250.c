@@ -6,7 +6,7 @@
 #include "driver/i2c_slave.h"
 #include "lora.h"
 
-static const char* TAG = "mpu";
+static const char* TAG = "Mpu: ";
 
 i2c_master_bus_handle_t bus_handle;
 i2c_master_dev_handle_t dev_handle;
@@ -15,6 +15,7 @@ i2c_slave_dev_handle_t slave_handle;
 // todo
 void mpu9250_init(int16_t *gyro_cal){
     //int16_t gyro_cal[3];
+    LORA_SEND_LOG(TAG, "Initializing.");
     
     // move these to main i2c controller ig
     i2c_master_bus_config_t i2c_mst_config = {
@@ -40,7 +41,7 @@ void mpu9250_init(int16_t *gyro_cal){
     LORA_SEND_ERROR(TAG, i2c_master_bus_add_device(bus_handle, &dev_cfg, &dev_handle));
     
     // i2c config mpu, idk prolly need another one of these
-    LORA_SEND_LOG(TAG, "Config for mpu i2c");
+    LORA_SEND_LOG(TAG, "Config for i2c");
     i2c_slave_config_t i2c_slv_config = {
         .addr_bit_len = I2C_ADDR_BIT_LEN_7, // dunno
         .clk_source = I2C_CLK_SRC_DEFAULT, // dunno
@@ -59,12 +60,12 @@ void mpu9250_init(int16_t *gyro_cal){
     LORA_SEND_LOG(TAG, "Gyro calibration.");
     calibrate_gyro(gyro_cal, 5); 
     LORA_SEND_LOG(TAG, "Gyro calibrated.");
+    LORA_SEND_LOG(TAG, "Init done.");
 }
 
 // todo
 void mpu9250_get_accel(int16_t accel[3]){
     uint8_t buffer[6];
-    LORA_SEND_LOG(TAG, "Reading acceleration.");
 
     i2c_master_receive(dev_handle, buffer, 100, -1); // IDK if this is correct at all but ight. -1 = forever
 
@@ -76,7 +77,6 @@ void mpu9250_get_accel(int16_t accel[3]){
 // todo
 void mpu9250_get_gyro(int16_t gyro[3]){
     uint8_t buffer[6];
-    LORA_SEND_LOG(TAG, "Reading gyro.");
     
     i2c_master_receive(dev_handle, buffer, 100, -1); // IDK if this is correct at all but ight. -1 = forever
 

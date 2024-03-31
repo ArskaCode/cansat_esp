@@ -12,10 +12,11 @@ typedef struct {
 
 static sipm_state_t sipm_state;
 
-static const char* TAG = "SiPM";
+static const char* TAG = "SiPM: ";
 
 void sipm_init(void)
 {
+    LORA_SEND_LOG(TAG, "Initializing.");
     i2c_config_t conf = {
         .mode = I2C_MODE_MASTER,
         .sda_io_num = CONFIG_I2C_SDA,
@@ -51,6 +52,7 @@ void sipm_init(void)
 
     sipm_state.unit = unit;
     sipm_state.chan = chan;
+    LORA_SEND_LOG(TAG, "Init done.");
 }
 
 int sipm_read_count(void)

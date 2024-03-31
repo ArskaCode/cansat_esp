@@ -22,7 +22,7 @@
 #include <stdint.h>
 #include <string.h>
 
-const char* TAG = "bmx280";
+const char* TAG = "Bmx280: ";
 
 // [BME280] Register address of humidity least significant byte.
 #define BMX280_REG_HUMI_LSB 0xFE

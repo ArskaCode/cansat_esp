@@ -7,7 +7,7 @@
 #include "esp_adc/adc_cali_scheme.h"
 #include "lora.h"
 
-static const char* TAG = "ntc";
+static const char* TAG = "Ntc: ";
 
 //adc2_handle
 adc_cali_handle_t adc2_cali_handle = NULL;
@@ -29,6 +29,7 @@ int ntc_read(){
 
 // Initialises the ADC channels for the ntc resistor
 void ntc_init(){
+    LORA_SEND_LOG(TAG, "Initializing.");
     //-------------ADC2 config---------------//
     LORA_SEND_LOG(TAG, "Configuring adc2");
     adc_oneshot_chan_cfg_t config = {
@@ -58,6 +59,7 @@ void ntc_init(){
         LORA_SEND_ERROR(TAG, adc_cali_raw_to_voltage(adc2_cali_handle, adc_raw[1][0], &voltage[1][0]));
         //LORA_SEND_LOG(TAG, "ADC%d Channel[%d] Cali Voltage: %d mV", ADC_UNIT_2 + 1, NTC_ADC2_CHAN, voltage[1][0]); 
     }
+    LORA_SEND_LOG(TAG, "Init done.");
 }
 
 /*---------------------------------------------------------------
@@ -70,7 +72,7 @@ bool NTC_adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_
     bool calibrated = false;
 
     if (!calibrated) {
-        LORA_SEND_LOG(TAG, "calibration scheme version is Line Fitting");
+        LORA_SEND_LOG(TAG, "Calibration scheme version is Line Fitting");
         adc_cali_line_fitting_config_t cali_config = {
             .unit_id = unit,
             .atten = atten,
