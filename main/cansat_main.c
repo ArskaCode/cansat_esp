@@ -47,7 +47,7 @@ void write_float(uint8_t **ptr, float value) {
 }
 
 // Function to serialize data_struct into binary format
-void serialize_data_struct(const struct data_struct *data, uint8_t *buffer) {
+void binary_serialize_data(const struct data_struct *data, uint8_t *buffer) {
     uint8_t *ptr = buffer;
 
     // Serialize time
@@ -112,7 +112,7 @@ static void init_timer(TaskHandle_t wake_task)
 }
 
 void serialize_data(const struct data_struct *data, char *buffer, size_t buffer_size) {
-    snprintf(buffer, buffer_size, "1 %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%f,%f,%f",
+    snprintf(buffer, buffer_size, "1 %ld,%ld,%ld,%ld,%d,%d,%d,%d,%d,%d,%f,%f,%f",
          data->time,data->sipmOut,
          data->ntcOut, data->bmxOut,
          data->gyroOut[0], data->gyroOut[1], data->gyroOut[2],
