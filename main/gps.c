@@ -5,12 +5,10 @@ nmea_parser_handle_t nmea_hdl;
 
 static const char *TAG = "gps";
 
-void gps_init(bool *inits)
+void gps_init(void)
 {
     nmea_parser_config_t config = NMEA_PARSER_CONFIG_DEFAULT();
     nmea_hdl = nmea_parser_init(&config);
-
-    inits[6] &= true;
 }
 
 void gps_get_data(gps_data_t* gps_data)

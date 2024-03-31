@@ -7,16 +7,13 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 
-#define LORA_SEND_ERROR(tag, x) ({                \
-    esp_err_t err_rc_ = (x);                      \
-    char combined[128];                           \
+#define LORA_SEND_ERROR(tag, x) do {            \
+    esp_err_t err_rc_ = (x);                    \
+    char combined[128];                         \
     snprintf(combined, sizeof(combined), "%s: %s", (tag), esp_err_to_name(err_rc_)); \
-    lora_transmit(&combined, strlen(combined));   \
-    bool success_ = (err_rc_ == ESP_OK);         \
-    success_;                                     \
-})
+    lora_transmit(&combined, strlen(combined)); \
+} while(0)
 
 #define LORA_SEND_LOG(tag, text) do {           \
     char combined[128];                         \
@@ -36,7 +33,7 @@ typedef struct __attribute__((packed)) {
 /*
  * Initialize lora stuff
  */
-void lora_init(bool *inits);
+void lora_init(void);
 
 /*
  * Get lora info

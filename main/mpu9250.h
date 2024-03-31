@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdbool.h>
 
 #ifndef MPU9250_H
 #define MPU9250_H
@@ -8,7 +7,7 @@
 /*
 * Used to init the mpu stuff
 */
-void mpu9250_init(int16_t *gyro_cal, bool *inits);
+void mpu9250_init(int16_t *gyro_cal);
 
 /*
 * Used to get the acceleration values from the mpu

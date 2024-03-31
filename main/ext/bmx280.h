@@ -14,7 +14,6 @@
 extern "C" {
 #endif
 
-#include <stdbool.h>
 #include <stdint.h>
 #include <limits.h>
 #include "driver/i2c_master.h"
@@ -45,7 +44,7 @@ BMXAPI void bmx280_close(bmx280_t* bmx280);
  * Probe for the sensor and read calibration data.
  * @param bmx280 Driver structure.
  */
-BMXAPI esp_err_t bmx280_init(bmx280_t* bmx280, bool *inits);
+BMXAPI esp_err_t bmx280_init(bmx280_t* bmx280);
 /**
  * Configure the sensor with the given parameters.
  * @param bmx280 Driver structure.

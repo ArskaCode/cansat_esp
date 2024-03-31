@@ -1,8 +1,7 @@
 #ifndef GPS_H
 #define GPS_H
 
-#include <stdbool.h>
-
+#include <string.h>
 #include "esp_err.h"
 
 typedef struct {
@@ -11,7 +10,7 @@ typedef struct {
     float altitude;
 } gps_data_t;
 
-void gps_init(bool *inits);
+void gps_init(void);
 
 void gps_get_data(gps_data_t* gps_data);
 

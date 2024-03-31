@@ -2,7 +2,6 @@
 #define NTC_H
 
 #include "esp_adc/adc_cali.h"
-#include <stdbool.h>
 /*
  * Read the value from the NTC resistor.
  */
@@ -11,7 +10,7 @@ int ntc_read(void);
 /*
  * Initialise the ntc stuff
  */
-void ntc_init(bool *inits);
+void ntc_init(void);
 
 /*
 * Used to calibrate the adc stuff

@@ -39,7 +39,7 @@ esp_err_t sd_write(const char *path, char *data){
 /*
 * Initlizes the sd card stuff
 */
-void sd_init(bool *inits){
+void sd_init(void){
     // Filesystem mount config
     esp_vfs_fat_sdmmc_mount_config_t mount_config = {
         .format_if_mount_failed = false,
@@ -66,7 +66,6 @@ void sd_init(bool *inits){
     ret = spi_bus_initialize(host.slot, &bus_cfg, SDSPI_DEFAULT_DMA);
     if (ret != ESP_OK) {
         LORA_SEND_LOG(TAG, "Failed to initialize bus.");
-        inits[1] &= false;
         return;
     }
     LORA_SEND_LOG(TAG, "Spi bus initialized succesfully.");
@@ -87,7 +86,6 @@ void sd_init(bool *inits){
         } else {
             LORA_SEND_LOG(TAG, "Failed to initialize the card (%s). ");
         }
-        inits[1] &= false;
         return;
     }
     LORA_SEND_LOG(TAG, "Filesystem mounted");
@@ -100,11 +98,9 @@ void sd_init(bool *inits){
     const char *file_data = MOUNT_POINT"/flight_data.txt";
     ret = sd_write(file_data, "\n");
     if (ret != ESP_OK) {
-        inits[1] &= false;
         return;
     }
     LORA_SEND_LOG(TAG, "Flight data file initialized.");
-    inits[1] &= true;
 }
 
 /*
