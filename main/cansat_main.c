@@ -30,20 +30,20 @@ struct data_struct {
 // Data binary serialization
 // Utility function to write a 32-bit unsigned integer to buffer
 void write_u32(uint8_t **ptr, uint32_t value) {
-    *(uint32_t*)(*ptr) = value;
-    (*ptr) += sizeof(uint32_t);
+    memcpy(*ptr, &value, sizeof(uint32_t));
+    *ptr += sizeof(uint32_t);
 }
 
 // Utility function to write a 16-bit signed integer to buffer
 void write_s16(uint8_t **ptr, int16_t value) {
-    *(int16_t*)(*ptr) = value;
-    (*ptr) += sizeof(int16_t);
+    memcpy(*ptr, &value, sizeof(int16_t));
+    *ptr += sizeof(int16_t);
 }
 
 // Utility function to write a float to buffer
 void write_float(uint8_t **ptr, float value) {
-    *(float*)(*ptr) = value;
-    (*ptr) += sizeof(float);
+    memcpy(*ptr, &value, sizeof(float));
+    *ptr += sizeof(float);
 }
 
 // Function to serialize data_struct into binary format
