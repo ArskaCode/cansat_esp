@@ -18,13 +18,13 @@
 static const char* TAG = "cansat";
 
 struct data_struct {
-    int ntcOut;
-    int bmxOut;
+    uint32_t ntcOut;
+    uint32_t bmxOut;
     int16_t gyroOut[3];
     int16_t accelOut[3];
     gps_data_t gps_data;
-    int sipmOut;
-    int time;
+    uint32_t sipmOut;
+    uint32_t time;
 };
 
 // Data binary serialization
@@ -48,40 +48,34 @@ void write_float(uint8_t **ptr, float value) {
 
 // Function to serialize data_struct into binary format
 void serialize_data_struct(const struct data_struct *data, uint8_t *buffer) {
+    uint8_t *ptr = buffer;
+
     // Serialize time
-    *(int*)(buffer) = data->time;
-    buffer += sizeof(int);
+    write_u32(&ptr, data->time);
 
     // Serialize sipmOut
-    *(int*)(buffer) = data->sipmOut;
-    buffer += sizeof(int);
+    write_u32(&ptr, data->sipmOut);
 
     // Serialize ntcOut
-    *(int*)(buffer) = data->ntcOut;
-    buffer += sizeof(int);
+    write_u32(&ptr, data->ntcOut);
 
     // Serialize bmxOut
-    *(int*)(buffer) = data->bmxOut;
-    buffer += sizeof(int);
+    write_u32(&ptr, data->bmxOut);
 
     // Serialize gyroOut
     for (int i = 0; i < 3; i++) {
-        *(int16_t*)(buffer) = data->gyroOut[i];
-        buffer += sizeof(int16_t);
+        write_s16(&ptr, data->gyroOut[i]);
     }
 
     // Serialize accelOut
     for (int i = 0; i < 3; i++) {
-        *(int16_t*)(buffer) = data->accelOut[i];
-        buffer += sizeof(int16_t);
+        write_s16(&ptr, data->accelOut[i]);
     }
 
     // Serialize gps_data
-    *(float*)(buffer) = data->gps_data.latitude;
-    buffer += sizeof(float);
-    *(float*)(buffer) = data->gps_data.longitude;
-    buffer += sizeof(float);
-    *(float*)(buffer) = data->gps_data.altitude;
+    write_float(&ptr, data->gps_data.latitude);
+    write_float(&ptr, data->gps_data.longitude);
+    write_float(&ptr, data->gps_data.altitude);
 } // end of data serialization
 
 static bool IRAM_ATTR timer_cb(gptimer_handle_t timer, const gptimer_alarm_event_data_t *edata, void *user_ctx)
