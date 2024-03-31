@@ -27,6 +27,63 @@ struct data_struct {
     int time;
 };
 
+// Data binary serialization
+// Utility function to write a 32-bit unsigned integer to buffer
+void write_u32(uint8_t **ptr, uint32_t value) {
+    *(uint32_t*)(*ptr) = value;
+    (*ptr) += sizeof(uint32_t);
+}
+
+// Utility function to write a 16-bit signed integer to buffer
+void write_s16(uint8_t **ptr, int16_t value) {
+    *(int16_t*)(*ptr) = value;
+    (*ptr) += sizeof(int16_t);
+}
+
+// Utility function to write a float to buffer
+void write_float(uint8_t **ptr, float value) {
+    *(float*)(*ptr) = value;
+    (*ptr) += sizeof(float);
+}
+
+// Function to serialize data_struct into binary format
+void serialize_data_struct(const struct data_struct *data, uint8_t *buffer) {
+    // Serialize time
+    *(int*)(buffer) = data->time;
+    buffer += sizeof(int);
+
+    // Serialize sipmOut
+    *(int*)(buffer) = data->sipmOut;
+    buffer += sizeof(int);
+
+    // Serialize ntcOut
+    *(int*)(buffer) = data->ntcOut;
+    buffer += sizeof(int);
+
+    // Serialize bmxOut
+    *(int*)(buffer) = data->bmxOut;
+    buffer += sizeof(int);
+
+    // Serialize gyroOut
+    for (int i = 0; i < 3; i++) {
+        *(int16_t*)(buffer) = data->gyroOut[i];
+        buffer += sizeof(int16_t);
+    }
+
+    // Serialize accelOut
+    for (int i = 0; i < 3; i++) {
+        *(int16_t*)(buffer) = data->accelOut[i];
+        buffer += sizeof(int16_t);
+    }
+
+    // Serialize gps_data
+    *(float*)(buffer) = data->gps_data.latitude;
+    buffer += sizeof(float);
+    *(float*)(buffer) = data->gps_data.longitude;
+    buffer += sizeof(float);
+    *(float*)(buffer) = data->gps_data.altitude;
+} // end of data serialization
+
 static bool IRAM_ATTR timer_cb(gptimer_handle_t timer, const gptimer_alarm_event_data_t *edata, void *user_ctx)
 {
     TaskHandle_t wake_task = (TaskHandle_t) user_ctx;
@@ -61,12 +118,12 @@ static void init_timer(TaskHandle_t wake_task)
 }
 
 void serialize_data(const struct data_struct *data, char *buffer, size_t buffer_size) {
-    snprintf(buffer, buffer_size, "%d,%d,%d,%d,%d,%d,%d,%d,%f,%f,%f,%d,%d",
+    snprintf(buffer, buffer_size, "1 %d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%f,%f,%f",
+         data->time,data->sipmOut,
          data->ntcOut, data->bmxOut,
          data->gyroOut[0], data->gyroOut[1], data->gyroOut[2],
          data->accelOut[0], data->accelOut[1], data->accelOut[2],
-         (float)data->gps_data.latitude, (float)data->gps_data.longitude, (float)data->gps_data.altitude,
-         data->sipmOut, data->time);
+         (float)data->gps_data.latitude, (float)data->gps_data.longitude, (float)data->gps_data.altitude);
 }
 
 void app_main(void)
@@ -122,6 +179,7 @@ void app_main(void)
     // real main
     struct data_struct output;
     char serialized_data[256]; // Adjust the buffer size
+    uint8_t binary_serialized_data[256]; // Adjust the buffer size
 
     // lora init
     lora_info_t lora_info;
@@ -135,7 +193,7 @@ void app_main(void)
     // sd card init
     sd_init();
 
-    // sipm init x
+    // sipm init
     sipm_init();
 
     // ntc init
@@ -154,6 +212,13 @@ void app_main(void)
     // gps init
     gps_init();
 
+    // stuff for the 10/1s loop
+    TickType_t xLastWakeTime;
+    const TickType_t xFrequency = pdMS_TO_TICKS(100); // 100ms period
+
+    // Initialize the xLastWakeTime variable with the current time.
+    xLastWakeTime = xTaskGetTickCount(); // or should this be esp_timer_get_time?
+    
     LORA_SEND_LOG(TAG, "Starting main loop.");
     while (1)
     {
@@ -169,7 +234,7 @@ void app_main(void)
         // read gyro
         mpu9250_get_gyro(output.gyroOut);
 
-        output.gyroOut[0] -= gyro_cal[0];
+        output.gyroOut[0] -= gyro_cal[0]; // eksdee this is def how you use the calibrated stuff
         output.gyroOut[1] -= gyro_cal[1];
         output.gyroOut[2] -= gyro_cal[2];
 
@@ -188,6 +253,10 @@ void app_main(void)
         lora_transmit(serialized_data, sizeof(serialized_data));
         sd_write("/sdcard/flight_data.txt", serialized_data);
 
-        vTaskDelay(pdMS_TO_TICKS(500)); // just waits for 100ms, need to make this dynamic so it waits in a way that it loops 10 times a second
+        // binary stuff
+        binary_serialize_data(&output, binary_serialized_data);
+        lora_transmit(binary_serialized_data, sizeof(binary_serialized_data));
+
+        vTaskDelayUntil(&xLastWakeTime, xFrequency); // idk might work
     }
 }
