@@ -14,69 +14,11 @@
 #include "gps.h"
 #include "ext/bmx280.h"
 #include "mpu9250.h"
+#include "serialize.h"
 
-static const char* TAG = "Cansat: ";
 
-struct data_struct {
-    uint32_t ntcOut;
-    uint32_t bmxOut;
-    int16_t gyroOut[3];
-    int16_t accelOut[3];
-    gps_data_t gps_data;
-    uint32_t sipmOut;
-    uint32_t time;
-};
+static const char* TAG = "cansat";
 
-// Data binary serialization
-// Utility function to write a 32-bit unsigned integer to buffer
-void write_u32(uint8_t **ptr, uint32_t value) {
-    memcpy(*ptr, &value, sizeof(uint32_t));
-    *ptr += sizeof(uint32_t);
-}
-
-// Utility function to write a 16-bit signed integer to buffer
-void write_s16(uint8_t **ptr, int16_t value) {
-    memcpy(*ptr, &value, sizeof(int16_t));
-    *ptr += sizeof(int16_t);
-}
-
-// Utility function to write a float to buffer
-void write_float(uint8_t **ptr, float value) {
-    memcpy(*ptr, &value, sizeof(float));
-    *ptr += sizeof(float);
-}
-
-// Function to serialize data_struct into binary format
-void binary_serialize_data(const struct data_struct *data, uint8_t *buffer) {
-    uint8_t *ptr = buffer;
-
-    // Serialize time
-    write_u32(&ptr, data->time);
-
-    // Serialize sipmOut
-    write_u32(&ptr, data->sipmOut);
-
-    // Serialize ntcOut
-    write_u32(&ptr, data->ntcOut);
-
-    // Serialize bmxOut
-    write_u32(&ptr, data->bmxOut);
-
-    // Serialize gyroOut
-    for (int i = 0; i < 3; i++) {
-        write_s16(&ptr, data->gyroOut[i]);
-    }
-
-    // Serialize accelOut
-    for (int i = 0; i < 3; i++) {
-        write_s16(&ptr, data->accelOut[i]);
-    }
-
-    // Serialize gps_data
-    write_float(&ptr, data->gps_data.latitude);
-    write_float(&ptr, data->gps_data.longitude);
-    write_float(&ptr, data->gps_data.altitude);
-} // end of data serialization
 
 static bool IRAM_ATTR timer_cb(gptimer_handle_t timer, const gptimer_alarm_event_data_t *edata, void *user_ctx)
 {
@@ -111,13 +53,13 @@ static void init_timer(TaskHandle_t wake_task)
     ESP_ERROR_CHECK(gptimer_register_event_callbacks(gptimer, &cbs, wake_task));
 }
 
-void serialize_data(const struct data_struct *data, char *buffer, size_t buffer_size) {
-    snprintf(buffer, buffer_size, "1 %ld,%ld,%ld,%ld,%d,%d,%d,%d,%d,%d,%f,%f,%f",
+int serialize_data_string(data_struct_t* data, char *buffer, size_t buffer_size) {
+    return snprintf(buffer, buffer_size, "1 %ld,%ld,%ld,%ld,%d,%d,%d,%d,%d,%d,%f,%f,%f",
          data->time,data->sipmOut,
          data->ntcOut, data->bmxOut,
          data->gyroOut[0], data->gyroOut[1], data->gyroOut[2],
          data->accelOut[0], data->accelOut[1], data->accelOut[2],
-         (float)data->gps_data.latitude, (float)data->gps_data.longitude, (float)data->gps_data.altitude);
+         data->gps_data.latitude, data->gps_data.longitude, data->gps_data.altitude);
 }
 
 void app_main(void)
@@ -171,9 +113,7 @@ void app_main(void)
     return;*/
 
     // real main
-    struct data_struct output;
-    char serialized_data[256]; // Adjust the buffer size
-    uint8_t binary_serialized_data[256]; // Adjust the buffer size
+    data_struct_t output;
 
     // lora init
     lora_info_t lora_info;
@@ -181,10 +121,7 @@ void app_main(void)
     lora_get_info(&lora_info);
     lora_set_address(0x1111);
     
-    LORA_SEND_LOG(TAG, "Hello.")
-    // timer init
-    init_timer(xTaskGetCurrentTaskHandle());
-
+    LORA_SEND_LOG(TAG, "Hello.");
     // sd card init
     sd_init();
 
@@ -243,15 +180,17 @@ void app_main(void)
         //output.bmxOut = bmx280_read();
         output.bmxOut = 10;
 
-        serialize_data(&output, serialized_data, sizeof(serialized_data));
+        char buf[256];
+        int written = serialize_data_string(&output, buf, sizeof(buf));
 
-        lora_transmit(serialized_data, sizeof(serialized_data));
-        sd_write("/sdcard/flight_data.txt", serialized_data);
+        lora_transmit(buf, written);
+        //sd_write("/sdcard/flight_data.txt", serialized_data);
 
         // binary stuff
-        binary_serialize_data(&output, binary_serialized_data);
-        lora_transmit(binary_serialized_data, sizeof(binary_serialized_data));
+        //binary_serialize_data(&output, binary_serialized_data);
+        //lora_transmit(binary_serialized_data, sizeof(binary_serialized_data));
 
-        vTaskDelayUntil(&xLastWakeTime, xFrequency); // idk might work
+        vTaskDelay(pdMS_TO_TICKS(100));
+        //vTaskDelayUntil(&xLastWakeTime, xFrequency); // idk might work
     }
 }
