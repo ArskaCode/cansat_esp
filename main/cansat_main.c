@@ -112,6 +112,7 @@ void app_main(void)
     
     return;*/
 
+/*
     // real main
     data_struct_t output;
 
@@ -193,4 +194,61 @@ void app_main(void)
         vTaskDelay(pdMS_TO_TICKS(100));
         //vTaskDelayUntil(&xLastWakeTime, xFrequency); // idk might work
     }
+    */
+
+    lora_init();
+    lora_set_address(0x1111);
+    lora_set_channel(0x17);
+
+    sipm_init();
+
+    ntc_init();
+
+    i2c_master_bus_config_t i2c_mst_config = {
+        .clk_source = I2C_CLK_SRC_DEFAULT,
+        .i2c_port = I2C_NUM_1,
+        .scl_io_num = CONFIG_I2C_SCL,
+        .sda_io_num = CONFIG_I2C_SDA,
+        .glitch_ignore_cnt = 7,
+        .flags.enable_internal_pullup = true,
+    };
+
+    i2c_master_bus_handle_t bus_handle;
+    ESP_ERROR_CHECK(i2c_new_master_bus(&i2c_mst_config, &bus_handle));
+
+    bmx280_t *bmx = bmx280_create(bus_handle);
+    bmx280_init(bmx);
+    bmx280_configure(bmx, &BMX280_DEFAULT_CONFIG);
+    bmx280_setMode(bmx, BMX280_MODE_CYCLE);
+
+    gps_init();
+
+    lora_info_t lora_info;
+    lora_get_info(&lora_info);
+    ESP_LOGI(TAG, "okok");
+    while (1)
+    {
+        char buf[256];
+
+        data_struct_t data;
+        int len = serialize_data_string(&data, buf, sizeof(buf));
+        char* test = "lol";
+        lora_transmit(test, strlen(test));
+        //ESP_LOGI(TAG, "transmitted: %s", buf);
+        vTaskDelay(pdMS_TO_TICKS(100));
+
+        float temp,pressure,humidity;
+        bmx280_readoutFloat(bmx, &temp, &pressure, &humidity);
+
+        ESP_LOGI(TAG, "T = %f , P = %f , Rh = %f, idk = %d", temp, pressure, humidity, bmx280_isSampling(bmx));
+
+        ESP_LOGI(TAG, "SiPM counter: %d", sipm_sample());
+        ESP_LOGI(TAG, "NTC voltage: %d", ntc_read());
+
+        gps_data_t gps_data;
+        gps_get_data(&gps_data);
+        ESP_LOGI(TAG, "lat: %f , lon: %f", gps_data.latitude, gps_data.longitude);
+    }
+    
+
 }

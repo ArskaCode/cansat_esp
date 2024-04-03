@@ -4,8 +4,6 @@
 
 const char* TAG = "serialize";
 
-const uint32_t MAGIC = 0xF1F2F3F4;
-
 typedef struct {
     void* ptr;
     size_t idx;
@@ -25,7 +23,7 @@ void ensure_len(serializer_t* ser, size_t sz)
 void write_bytes(serializer_t* ser, void* src, size_t len)
 {
     ensure_len(ser, len);
-    memcpy(ser->idx + ser->idx, src, len);
+    memcpy(ser->ptr + ser->idx, src, len);
     ser->idx += len;
 }
 
@@ -67,16 +65,16 @@ size_t serialize_data(void* buf, size_t len, data_struct_t* data)
     write_u32(&ser, data->bmxOut);
 
     for (int i = 0; i < 3; i++) {
-        write_s16(&ser, data->gyroOut[i]);
+        write_i16(&ser, data->gyroOut[i]);
     }
 
     for (int i = 0; i < 3; i++) {
-        write_s16(&ser, data->accelOut[i]);
+        write_i16(&ser, data->accelOut[i]);
     }
 
-    write_float(&ser, data->gps_data.latitude);
-    write_float(&ser, data->gps_data.longitude);
-    write_float(&ser, data->gps_data.altitude);
+    write_f32(&ser, data->gps_data.latitude);
+    write_f32(&ser, data->gps_data.longitude);
+    write_f32(&ser, data->gps_data.altitude);
 
     return ser.idx;
 }

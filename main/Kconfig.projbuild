@@ -45,7 +45,6 @@ menu "Cansat"
     menu "SiPM"
         config SIPM_O1
             int "SIPM O1 GPIO number"
-            range ENV_GPIO_RANGE_MIN ENV_GPIO_OUT_RANGE_MAX
             default 34
 
         config SIPM_POT

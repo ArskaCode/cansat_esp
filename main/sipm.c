@@ -1,8 +1,7 @@
 #include "sipm.h"
 
-#include "driver/i2c.h"
+#include <limits.h>
 #include "driver/pulse_cnt.h"
-#include "lora.h"
 
 
 typedef struct {
@@ -12,11 +11,11 @@ typedef struct {
 
 static sipm_state_t sipm_state;
 
-static const char* TAG = "SiPM: ";
+static const char* TAG = "SiPM";
 
 void sipm_init(void)
 {
-    LORA_SEND_LOG(TAG, "Initializing.");
+    /*
     i2c_config_t conf = {
         .mode = I2C_MODE_MASTER,
         .sda_io_num = CONFIG_I2C_SDA,
@@ -28,14 +27,14 @@ void sipm_init(void)
     };
 
     LORA_SEND_ERROR(TAG, i2c_param_config(0, &conf));
-
+    */
     pcnt_unit_config_t unit_config = {
-        .low_limit = 0,
+        .low_limit = -1,
         .high_limit = SHRT_MAX,
     };
 
     pcnt_unit_handle_t unit;
-    LORA_SEND_ERROR(TAG, pcnt_new_unit(&unit_config, &unit));
+    ESP_ERROR_CHECK(pcnt_new_unit(&unit_config, &unit));
 
     pcnt_chan_config_t chan_config = {
         .edge_gpio_num = CONFIG_SIPM_O1,
@@ -45,24 +44,19 @@ void sipm_init(void)
     };
 
     pcnt_channel_handle_t chan;
-    LORA_SEND_ERROR(TAG, pcnt_new_channel(unit, &chan_config, &chan));
+    ESP_ERROR_CHECK(pcnt_new_channel(unit, &chan_config, &chan));
 
-    LORA_SEND_ERROR(TAG, pcnt_channel_set_edge_action(chan, PCNT_CHANNEL_EDGE_ACTION_INCREASE, PCNT_CHANNEL_EDGE_ACTION_HOLD));
-    LORA_SEND_ERROR(TAG, pcnt_channel_set_level_action(chan, PCNT_CHANNEL_LEVEL_ACTION_KEEP, PCNT_CHANNEL_LEVEL_ACTION_KEEP));
+    ESP_ERROR_CHECK(pcnt_channel_set_edge_action(chan, PCNT_CHANNEL_EDGE_ACTION_INCREASE, PCNT_CHANNEL_EDGE_ACTION_HOLD));
+    ESP_ERROR_CHECK(pcnt_channel_set_level_action(chan, PCNT_CHANNEL_LEVEL_ACTION_KEEP, PCNT_CHANNEL_LEVEL_ACTION_KEEP));
 
     sipm_state.unit = unit;
     sipm_state.chan = chan;
-    LORA_SEND_LOG(TAG, "Init done.");
 }
 
-int sipm_read_count(void)
+int16_t sipm_sample(void)
 {
     int value;
-    LORA_SEND_ERROR(TAG, pcnt_unit_get_count(sipm_state.unit, &value));
+    ESP_ERROR_CHECK(pcnt_unit_get_count(sipm_state.unit, &value));
+    ESP_ERROR_CHECK(pcnt_unit_clear_count(sipm_state.unit));
     return value;
-}
-
-void sipm_clear_count(void)
-{
-    LORA_SEND_ERROR(TAG, pcnt_unit_clear_count(sipm_state.unit));
 }

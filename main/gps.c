@@ -1,17 +1,17 @@
 #include "gps.h"
 #include "ext/nmea_parser.h"
-#include "lora.h"
+#include "esp_log.h"
 
 nmea_parser_handle_t nmea_hdl;
 
-static const char *TAG = "Gps: ";
+static const char *TAG = "GPS";
 
 void gps_init(void)
 {
-    LORA_SEND_LOG(TAG, "Initializing.");
+    ESP_LOGI(TAG, "Initializing.");
     nmea_parser_config_t config = NMEA_PARSER_CONFIG_DEFAULT();
     nmea_hdl = nmea_parser_init(&config);
-    LORA_SEND_LOG(TAG, "Init done.");
+    ESP_LOGI(TAG, "Init done.");
 }
 
 void gps_get_data(gps_data_t* gps_data)

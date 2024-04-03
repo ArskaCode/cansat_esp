@@ -30,7 +30,7 @@
  */
 ESP_EVENT_DEFINE_BASE(ESP_NMEA_EVENT);
 
-static const char *GPS_TAG = "nmea_parser";
+static const char *TAG = "nmea_parser";
 
 /**
  * @brief GPS parser library runtime structure
@@ -538,7 +538,7 @@ static esp_err_t gps_decode(esp_gps_t *esp_gps, size_t len)
                                       &(esp_gps->parent), sizeof(gps_t), 100 / portTICK_PERIOD_MS);
                 }
             } else {
-                ESP_LOGD(GPS_TAG, "CRC Error for statement:%s", esp_gps->buffer);
+                ESP_LOGD(TAG, "CRC Error for statement:%s", esp_gps->buffer);
             }
             if (esp_gps->cur_statement == STATEMENT_UNKNOWN) {
                 /* Send signal to notify that one unknown statement has been met */
@@ -577,10 +577,10 @@ static void esp_handle_uart_pattern(esp_gps_t *esp_gps)
         esp_gps->buffer[read_len] = '\0';
         /* Send new line to handle */
         if (gps_decode(esp_gps, read_len + 1) != ESP_OK) {
-            ESP_LOGW(GPS_TAG, "GPS decode line failed");
+            ESP_LOGW(TAG, "GPS decode line failed");
         }
     } else {
-        ESP_LOGW(GPS_TAG, "Pattern Queue Size too small");
+        ESP_LOGW(TAG, "Pattern Queue Size too small");
         uart_flush_input(esp_gps->uart_port);
     }
 }
@@ -600,29 +600,29 @@ static void nmea_parser_task_entry(void *arg)
             case UART_DATA:
                 break;
             case UART_FIFO_OVF:
-                ESP_LOGW(GPS_TAG, "HW FIFO Overflow");
+                ESP_LOGW(TAG, "HW FIFO Overflow");
                 uart_flush(esp_gps->uart_port);
                 xQueueReset(esp_gps->event_queue);
                 break;
             case UART_BUFFER_FULL:
-                ESP_LOGW(GPS_TAG, "Ring Buffer Full");
+                ESP_LOGW(TAG, "Ring Buffer Full");
                 uart_flush(esp_gps->uart_port);
                 xQueueReset(esp_gps->event_queue);
                 break;
             case UART_BREAK:
-                ESP_LOGW(GPS_TAG, "Rx Break");
+                ESP_LOGW(TAG, "Rx Break");
                 break;
             case UART_PARITY_ERR:
-                LORA_SEND_LOG(GPS_TAG, "Parity Error");
+                ESP_LOGW(TAG, "Parity Error");
                 break;
             case UART_FRAME_ERR:
-                LORA_SEND_LOG(GPS_TAG, "Frame Error");
+                ESP_LOGW(TAG, "Frame Error");
                 break;
             case UART_PATTERN_DET:
                 esp_handle_uart_pattern(esp_gps);
                 break;
             default:
-                ESP_LOGW(GPS_TAG, "unknown uart event type: %d", event.type);
+                ESP_LOGW(TAG, "unknown uart event type: %d", event.type);
                 break;
             }
         }
@@ -642,12 +642,12 @@ nmea_parser_handle_t nmea_parser_init(const nmea_parser_config_t *config)
 {
     esp_gps_t *esp_gps = calloc(1, sizeof(esp_gps_t));
     if (!esp_gps) {
-        LORA_SEND_LOG(GPS_TAG, "calloc memory for esp_fps failed");
+        ESP_LOGE(TAG, "calloc memory for esp_fps failed");
         goto err_gps;
     }
     esp_gps->buffer = calloc(1, NMEA_PARSER_RUNTIME_BUFFER_SIZE);
     if (!esp_gps->buffer) {
-        LORA_SEND_LOG(GPS_TAG, "calloc memory for runtime buffer failed");
+        ESP_LOGE(TAG, "calloc memory for runtime buffer failed");
         goto err_buffer;
     }
 #if CONFIG_NMEA_STATEMENT_GSA
@@ -682,16 +682,16 @@ nmea_parser_handle_t nmea_parser_init(const nmea_parser_config_t *config)
     };
     if (uart_driver_install(esp_gps->uart_port, CONFIG_NMEA_PARSER_RING_BUFFER_SIZE, 0,
                             config->uart.event_queue_size, &esp_gps->event_queue, 0) != ESP_OK) {
-        LORA_SEND_LOG(GPS_TAG, "install uart driver failed");
+        ESP_LOGE(TAG, "install uart driver failed");
         goto err_uart_install;
     }
     if (uart_param_config(esp_gps->uart_port, &uart_config) != ESP_OK) {
-        LORA_SEND_LOG(GPS_TAG, "config uart parameter failed");
+        ESP_LOGE(TAG, "config uart parameter failed");
         goto err_uart_config;
     }
     if (uart_set_pin(esp_gps->uart_port, UART_PIN_NO_CHANGE, config->uart.rx_pin,
                      UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE) != ESP_OK) {
-        LORA_SEND_LOG(GPS_TAG, "config uart gpio failed");
+        ESP_LOGE(TAG, "config uart gpio failed");
         goto err_uart_config;
     }
     /* Set pattern interrupt, used to detect the end of a line */
@@ -705,7 +705,7 @@ nmea_parser_handle_t nmea_parser_init(const nmea_parser_config_t *config)
         .task_name = NULL
     };
     if (esp_event_loop_create(&loop_args, &esp_gps->event_loop_hdl) != ESP_OK) {
-        LORA_SEND_LOG(GPS_TAG, "create event loop faild");
+        ESP_LOGE(TAG, "create event loop faild");
         goto err_eloop;
     }
     /* Create NMEA Parser task */
@@ -719,10 +719,10 @@ nmea_parser_handle_t nmea_parser_init(const nmea_parser_config_t *config)
                          &esp_gps->tsk_hdl,
                          xPortGetCoreID());
     if (err != pdTRUE) {
-        LORA_SEND_LOG(GPS_TAG, "create NMEA Parser task failed");
+        ESP_LOGE(TAG, "create NMEA Parser task failed");
         goto err_task_create;
     }
-    LORA_SEND_LOG(GPS_TAG, "NMEA Parser init OK");
+    ESP_LOGI(TAG, "NMEA Parser init OK");
     return esp_gps;
     /*Error Handling*/
 err_task_create:

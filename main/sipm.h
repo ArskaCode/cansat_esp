@@ -5,13 +5,17 @@
 #ifndef SIPM_H
 #define SIPM_H
 
+#include <stdint.h>
+
 /*
  * Initialize sipm stuff
  */
 void sipm_init(void);
 
-int sipm_read_count(void);
+/*
+ * Sample the sipm
 
-void sipm_clear_count(void);
+ */
+int16_t sipm_sample(void);
 
 #endif
